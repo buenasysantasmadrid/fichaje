@@ -3,106 +3,104 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fichaje</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Fichaje · Buenas y Santas</title>
+<link rel="icon" href="logo_buenasysantas.jpg" type="image/jpeg">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f5f4f0; --surface: #ffffff; --surface2: #efede8;
-    --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
-    --text: #1a1a18; --text2: #6b6960; --text3: #9e9c94;
-    --green: #2d6a4f; --green-bg: #e8f5ee;
-    --red: #9b2335; --red-bg: #fceef0;
-    --blue: #1a4f7a; --blue-bg: #e8f0f8;
-    --radius: 12px; --radius-sm: 8px;
+    --bg:#f5f4f0;--surface:#fff;--surface2:#efede8;
+    --border:rgba(0,0,0,0.1);--border2:rgba(0,0,0,0.18);
+    --text:#1a1a18;--text2:#6b6960;--text3:#9e9c94;
+    --green:#2d6a4f;--green-bg:#e8f5ee;
+    --red:#9b2335;--red-bg:#fceef0;
+    --blue:#1a4f7a;--blue-bg:#e8f0f8;
+    --radius:12px;--radius-sm:8px;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
-  #app { width: 100%; max-width: 480px; }
-  .screen { display: none; } .screen.active { display: block; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem;}
+  #app{width:100%;max-width:480px;}
+  .screen{display:none;}.screen.active{display:block;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
-  .app-header { display: flex; align-items: center; gap: 14px; margin-bottom: 2rem; }
-  .app-logo { width: 48px; height: 48px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--text); text-align: center; line-height: 1.1; }
-  .app-title { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
-  .app-subtitle { font-size: 13px; color: var(--text2); margin-top: 1px; }
-  .header-actions { margin-left: auto; }
+  .app-header{display:flex;align-items:center;gap:14px;margin-bottom:2rem;}
+  .app-logo{width:56px;height:56px;border-radius:var(--radius-sm);overflow:hidden;flex-shrink:0;border:0.5px solid var(--border);}
+  .app-logo img{width:100%;height:100%;object-fit:contain;display:block;}
+  .app-title{font-size:22px;font-weight:600;letter-spacing:-0.5px;}
+  .app-subtitle{font-size:13px;color:var(--text2);margin-top:1px;}
+  .header-actions{margin-left:auto;}
 
-  .card { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 1.25rem; margin-bottom: 1rem; }
+  .card{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);padding:1.25rem;margin-bottom:1rem;}
+  .btn{display:flex;align-items:center;justify-content:center;width:100%;padding:12px 20px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:all 0.15s;border:0.5px solid var(--border2);background:var(--surface);color:var(--text);margin-top:10px;}
+  .btn:hover{background:var(--surface2);}
+  .btn-success{background:var(--green-bg);color:var(--green);border-color:rgba(45,106,79,0.2);font-size:17px;padding:16px;}
+  .btn-success:hover{background:#d4eddf;}
+  .btn-danger{background:var(--red-bg);color:var(--red);border-color:rgba(155,35,53,0.2);font-size:17px;padding:16px;}
+  .btn-danger:hover{background:#f5d8dc;}
+  .btn-disabled{background:var(--surface2);color:var(--text3);border-color:var(--border);font-size:17px;padding:16px;cursor:not-allowed;opacity:0.4;}
+  .btn-sm{width:auto;padding:7px 14px;font-size:13px;margin-top:0;}
+  .btn-back{display:inline-flex;align-items:center;gap:6px;background:none;border:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text2);cursor:pointer;padding:0;margin-bottom:1.5rem;}
+  .btn-back:hover{color:var(--text);}
 
-  .btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 12px 20px; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 0.5px solid var(--border2); background: var(--surface); color: var(--text); margin-top: 10px; }
-  .btn:hover { background: var(--surface2); }
-  .btn-primary { background: var(--text); color: white; border-color: var(--text); }
-  .btn-primary:hover { background: #333330; }
-  .btn-success { background: var(--green-bg); color: var(--green); border-color: rgba(45,106,79,0.2); font-size: 17px; padding: 16px; }
-  .btn-success:hover { background: #d4eddf; }
-  .btn-danger { background: var(--red-bg); color: var(--red); border-color: rgba(155,35,53,0.2); font-size: 17px; padding: 16px; }
-  .btn-danger:hover { background: #f5d8dc; }
-  .btn-disabled { background: var(--surface2); color: var(--text3); border-color: var(--border); font-size: 17px; padding: 16px; cursor: not-allowed; opacity: 0.4; }
-  .btn-sm { width: auto; padding: 7px 14px; font-size: 13px; margin-top: 0; }
-  .btn-back { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text2); cursor: pointer; padding: 0; margin-bottom: 1.5rem; }
-  .btn-back:hover { color: var(--text); }
+  .emp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+  .emp-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.1rem 1rem;cursor:pointer;transition:all 0.15s;text-align:center;}
+  .emp-card:hover{border-color:var(--border2);background:var(--surface2);transform:translateY(-1px);}
+  .emp-name{font-size:15px;font-weight:600;margin-bottom:6px;}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+  .badge-in{background:var(--green-bg);color:var(--green);}
+  .badge-out{background:var(--red-bg);color:var(--red);}
 
-  .emp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
-  .emp-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1rem; cursor: pointer; transition: all 0.15s; text-align: center; }
-  .emp-card:hover { border-color: var(--border2); background: var(--surface2); transform: translateY(-1px); }
-  .emp-name { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
-  .badge-in { background: var(--green-bg); color: var(--green); }
-  .badge-out { background: var(--red-bg); color: var(--red); }
+  .pin-header{text-align:center;margin-bottom:1.5rem;}
+  .pin-avatar-large{width:72px;height:72px;border-radius:50%;background:var(--surface2);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:22px;color:var(--text2);margin:0 auto 12px;}
+  .pin-name{font-size:18px;font-weight:600;letter-spacing:-0.3px;margin-bottom:4px;}
+  .pin-hint{font-size:13px;color:var(--text2);}
+  .pin-dots{display:flex;justify-content:center;gap:12px;margin:1.5rem 0;}
+  .pin-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;transition:all 0.15s;}
+  .pin-dot.filled{background:var(--text);border-color:var(--text);}
+  .pin-dot.error{background:var(--red);border-color:var(--red);animation:shake 0.3s;}
+  .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:260px;margin:0 auto;}
+  .num-btn{padding:18px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:20px;font-weight:400;background:var(--surface);color:var(--text);cursor:pointer;transition:all 0.1s;text-align:center;}
+  .num-btn:hover{background:var(--surface2);}
+  .num-btn:active{transform:scale(0.95);}
+  .pin-error-msg{text-align:center;font-size:13px;color:var(--red);margin-bottom:1rem;min-height:20px;}
 
-  .pin-header { text-align: center; margin-bottom: 1.5rem; }
-  .pin-avatar-large { width: 72px; height: 72px; border-radius: 50%; background: var(--surface2); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 22px; color: var(--text2); margin: 0 auto 12px; }
-  .pin-name { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 4px; }
-  .pin-hint { font-size: 13px; color: var(--text2); }
-  .pin-dots { display: flex; justify-content: center; gap: 12px; margin: 1.5rem 0; }
-  .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--border2); background: transparent; transition: all 0.15s; }
-  .pin-dot.filled { background: var(--text); border-color: var(--text); }
-  .pin-dot.error { background: var(--red); border-color: var(--red); animation: shake 0.3s; }
-  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
-  .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 260px; margin: 0 auto; }
-  .num-btn { padding: 18px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 400; background: var(--surface); color: var(--text); cursor: pointer; transition: all 0.1s; text-align: center; }
-  .num-btn:hover { background: var(--surface2); }
-  .num-btn:active { transform: scale(0.95); }
-  .pin-error-msg { text-align: center; font-size: 13px; color: var(--red); margin-bottom: 1rem; min-height: 20px; }
+  .video-wrap{width:100%;max-width:300px;margin:0 auto 1.25rem;border-radius:var(--radius);overflow:hidden;border:0.5px solid var(--border);background:#111;aspect-ratio:4/3;}
+  #video{width:100%;display:block;}
+  #canvas{display:none;}
+  .alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:1rem;}
+  .alert-info{background:var(--blue-bg);color:var(--blue);}
 
-  .video-wrap { width: 100%; max-width: 300px; margin: 0 auto 1.25rem; border-radius: var(--radius); overflow: hidden; border: 0.5px solid var(--border); background: #111; aspect-ratio: 4/3; }
-  #video { width: 100%; display: block; }
-  #canvas { display: none; }
+  .fich-name{font-size:34px;font-weight:700;letter-spacing:-1.5px;text-align:center;margin-bottom:1rem;}
+  .info-box{border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:8px;}
+  .info-box-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px;}
+  .info-box-value{font-size:20px;font-weight:600;}
+  .info-box-green{background:var(--green-bg);}
+  .info-box-green .info-box-label{color:var(--green);}
+  .info-box-green .info-box-value{color:var(--green);}
+  .info-box-gray{background:var(--surface2);}
+  .info-box-gray .info-box-label{color:var(--text2);}
+  .info-box-gray .info-box-value{color:var(--text);font-size:22px;}
 
-  .alert { padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 1rem; }
-  .alert-info { background: var(--blue-bg); color: var(--blue); }
+  .hist-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .hist-table th{text-align:left;padding:8px 12px;font-size:12px;font-weight:500;color:var(--text2);border-bottom:0.5px solid var(--border);}
+  .hist-table td{padding:8px 12px;border-bottom:0.5px solid var(--border);}
+  .hist-table tr:last-child td{border-bottom:none;}
 
-  .fich-name { font-size: 34px; font-weight: 700; letter-spacing: -1.5px; text-align: center; margin-bottom: 1rem; }
-  .info-box { border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 8px; }
-  .info-box-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
-  .info-box-value { font-size: 20px; font-weight: 600; }
-  .info-box-green { background: var(--green-bg); }
-  .info-box-green .info-box-label { color: var(--green); }
-  .info-box-green .info-box-value { color: var(--green); }
-  .info-box-gray { background: var(--surface2); }
-  .info-box-gray .info-box-label { color: var(--text2); }
-  .info-box-gray .info-box-value { color: var(--text); font-size: 22px; }
-
-  .hist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .hist-table th { text-align: left; padding: 8px 12px; font-size: 12px; font-weight: 500; color: var(--text2); border-bottom: 0.5px solid var(--border); }
-  .hist-table td { padding: 8px 12px; border-bottom: 0.5px solid var(--border); }
-  .hist-table tr:last-child td { border-bottom: none; }
-
-  .success-wrap { text-align: center; padding: 2rem 1rem 1rem; }
-  .success-icon { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 32px; }
-  .success-icon.entrada { background: var(--green-bg); }
-  .success-icon.salida { background: var(--red-bg); }
-  .success-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 6px; }
-  .success-sub { font-size: 14px; color: var(--text2); margin-bottom: 10px; }
-  .success-tiempo { font-size: 19px; font-weight: 600; color: var(--green); margin-bottom: 1rem; padding: 12px 16px; background: var(--green-bg); border-radius: var(--radius-sm); }
-  .photo-thumb { width: 140px; height: 105px; object-fit: cover; border-radius: var(--radius-sm); border: 0.5px solid var(--border); margin: 0 auto 1rem; display: block; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  .success-wrap{text-align:center;padding:2rem 1rem 1rem;}
+  .success-icon{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:32px;}
+  .success-icon.entrada{background:var(--green-bg);}
+  .success-icon.salida{background:var(--red-bg);}
+  .success-title{font-size:22px;font-weight:600;letter-spacing:-0.3px;margin-bottom:6px;}
+  .success-sub{font-size:14px;color:var(--text2);margin-bottom:10px;}
+  .success-tiempo{font-size:19px;font-weight:600;color:var(--green);margin-bottom:1rem;padding:12px 16px;background:var(--green-bg);border-radius:var(--radius-sm);}
+  .photo-thumb{width:140px;height:105px;object-fit:cover;border-radius:var(--radius-sm);border:0.5px solid var(--border);margin:0 auto 1rem;display:block;}
 </style>
 </head>
 <body>
 <div id="app">
 
   <div id="screen-loading" class="screen active">
-    <div style="text-align:center; padding:4rem 1rem;">
+    <div style="text-align:center;padding:4rem 1rem;">
       <div style="width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--text);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 1rem;"></div>
       <p style="font-size:14px;color:var(--text2);">Cargando...</p>
     </div>
@@ -110,7 +108,9 @@
 
   <div id="screen-main" class="screen">
     <div class="app-header">
-      <div class="app-logo">B&amp;S</div>
+      <div class="app-logo">
+        <img src="logo_buenasysantas.jpg" alt="Buenas y Santas">
+      </div>
       <div>
         <div class="app-title">Fichaje</div>
         <div class="app-subtitle" id="header-date"></div>
@@ -153,7 +153,7 @@
   <div id="screen-fichar" class="screen">
     <button class="btn-back" onclick="cancelarFichaje()">← Volver</button>
     <div class="fich-name" id="fich-nombre"></div>
-    <div id="fich-entrada-wrap" style="display:none; margin-bottom:1rem;">
+    <div id="fich-entrada-wrap" style="display:none;margin-bottom:1rem;">
       <div class="info-box info-box-green">
         <div class="info-box-label">Entrada</div>
         <div class="info-box-value" id="fich-entrada-val"></div>
@@ -187,109 +187,137 @@
       <div class="success-title" id="success-title"></div>
       <div class="success-sub" id="success-sub"></div>
       <div class="success-tiempo" id="success-tiempo" style="display:none;"></div>
-      <div id="aviso-horario" style="display:none; margin-bottom:1rem; padding:14px 18px; background:var(--red-bg); border-radius:var(--radius-sm); border:1px solid rgba(155,35,53,0.2);">
-        <p style="color:var(--red); font-size:22px; font-weight:700; margin:0;">⚠️ OJO HORARIO</p>
+      <div id="aviso-horario" style="display:none;margin-bottom:1rem;padding:14px 18px;background:var(--red-bg);border-radius:var(--radius-sm);border:1px solid rgba(155,35,53,0.2);">
+        <p style="color:var(--red);font-size:22px;font-weight:700;margin:0;">⚠️ OJO HORARIO</p>
       </div>
-      <img id="success-photo" class="photo-thumb" src="" alt="" style="display:none;" />
+      <img id="success-photo" class="photo-thumb" src="" alt="" style="display:none;">
     </div>
   </div>
 
 </div>
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypMnnN4c7Wh8FQzFFrE9r_dxH2JlfhvwikBo7-iGks0KFegjEm0XAdWEymNmie4VlU/exec';
-let state = { empleados:[], fichajes:{}, empleadoActual:null, pinIngresado:'', stream:null, tiempoInterval:null };
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbypMnnN4c7Wh8FQzFFrE9r_dxH2JlfhvwikBo7-iGks0KFegjEm0XAdWEymNmie4VlU/exec';
+let state={empleados:[],fichajes:{},empleadoActual:null,pinIngresado:'',stream:null,tiempoInterval:null};
 
-function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-function updateHeaderDate() { const he=document.getElementById('header-date'); if(he) he.textContent=new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'}); }
-setInterval(updateHeaderDate,60000); updateHeaderDate();
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function updateHeaderDate(){const he=document.getElementById('header-date');if(he)he.textContent=new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});}
+setInterval(updateHeaderDate,60000);updateHeaderDate();
 function getInitials(n){return n.split(' ').map(w=>w[0]).filter(Boolean).slice(0,2).join('').toUpperCase();}
 function primerNombre(n){return n.trim().split(/\s+/)[0];}
 
-function fmtFecha(val) {
-  if(!val) return '—';
-  const s = String(val).trim();
-  if(s.includes('/')) {
-    const p = s.split('/');
-    if(p.length===3) return `${p[0].padStart(2,'0')}/${p[1].padStart(2,'0')}/${p[2]}`;
+function fmtFecha(val){
+  if(!val)return'—';
+  const s=String(val).trim();
+  if(s.includes('/')){const p=s.split('/');if(p.length===3)return`${p[0].padStart(2,'0')}/${p[1].padStart(2,'0')}/${p[2]}`;}
+  return s;
+}
+function fmtHora(val){
+  if(!val)return'—';
+  const s=String(val).trim();
+  if(s.includes(':'))return s.substring(0,5);
+  return s;
+}
+function parseFichajeDate(fecha,hora){
+  try{
+    const f=fmtFecha(fecha),h=fmtHora(hora);
+    if(!f||!h||f==='—'||h==='—')return null;
+    const fp=f.split('/'),hp=h.split(':');
+    if(fp.length!==3||hp.length<2)return null;
+    const d=parseInt(fp[0]),m=parseInt(fp[1]),y=parseInt(fp[2]),hh=parseInt(hp[0]),mm=parseInt(hp[1]);
+    if(isNaN(d)||isNaN(m)||isNaN(y)||isNaN(hh)||isNaN(mm))return null;
+    return new Date(y,m-1,d,hh,mm,0);
+  }catch{return null;}
+}
+function calcTiempo(entrada){
+  const inicio=parseFichajeDate(entrada.fecha,entrada.hora);
+  if(!inicio)return null;
+  const diff=Date.now()-inicio.getTime();
+  if(diff<0)return null;
+  const totalMin=Math.floor(diff/60000);
+  const h=Math.floor(totalMin/60),m=totalMin%60;
+  return{h,m,texto:`${h}h ${m}min`};
+}
+
+// ── Calculo de horas ────────────────────────────────────────────
+function horaAMin(horaStr){
+  const s=String(horaStr).trim().substring(0,5);
+  const p=s.split(':');
+  if(p.length<2)return 0;
+  return parseInt(p[0])*60+parseInt(p[1]);
+}
+function diferenciaMin(horaEnt,horaSal){
+  let e=horaAMin(horaEnt),s=horaAMin(horaSal);
+  if(s<e)s+=24*60; // cruce de medianoche
+  return s-e;
+}
+// Dia laboral: antes de las 02:00 pertenece al dia anterior
+function diaLaboral(fechaStr,horaStr){
+  const min=horaAMin(horaStr);
+  if(min<120){
+    const p=String(fechaStr).trim().split('/');
+    if(p.length===3){
+      const d=new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));
+      d.setDate(d.getDate()-1);
+      return`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+    }
   }
-  return s;
+  return String(fechaStr).trim();
+}
+function minATexto(min){
+  if(!min||min<=0)return'0h 0min';
+  return`${Math.floor(min/60)}h ${min%60}min`;
 }
 
-function fmtHora(val) {
-  if(!val) return '—';
-  const s = String(val).trim();
-  if(s.includes(':')) return s.substring(0,5);
-  return s;
-}
-
-function parseFichajeDate(fecha, hora) {
-  try {
-    const f = fmtFecha(fecha);
-    const h = fmtHora(hora);
-    if(!f || !h || f==='—' || h==='—') return null;
-    const fp = f.split('/');
-    const hp = h.split(':');
-    if(fp.length!==3 || hp.length<2) return null;
-    const d=parseInt(fp[0]), m=parseInt(fp[1]), y=parseInt(fp[2]);
-    const hh=parseInt(hp[0]), mm=parseInt(hp[1]);
-    if(isNaN(d)||isNaN(m)||isNaN(y)||isNaN(hh)||isNaN(mm)) return null;
-    return new Date(y, m-1, d, hh, mm, 0);
-  } catch{ return null; }
-}
-
-function calcTiempo(entrada) {
-  const inicio = parseFichajeDate(entrada.fecha, entrada.hora);
-  if(!inicio) return null;
-  const diff = Date.now() - inicio.getTime();
-  if(diff<0) return null;
-  const totalMin = Math.floor(diff/60000);
-  const h=Math.floor(totalMin/60), m=totalMin%60;
-  return {h, m, texto:`${h}h ${m}min`};
-}
-
-async function apiGet(params) {
+// ── API ─────────────────────────────────────────────────────────
+async function apiGet(params){
   const res=await fetch(SCRIPT_URL+'?'+new URLSearchParams(params).toString(),{redirect:'follow'});
-  if(!res.ok) throw new Error('HTTP '+res.status);
+  if(!res.ok)throw new Error('HTTP '+res.status);
   return res.json();
 }
-async function apiPost(data) {
+async function apiPost(data){
   const res=await fetch(SCRIPT_URL+'?action=addFichaje',{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)});
-  if(!res.ok) throw new Error('HTTP '+res.status);
+  if(!res.ok)throw new Error('HTTP '+res.status);
   return res.json();
 }
-async function cargarEmpleados() {
+async function cargarEmpleados(){
   const data=await apiGet({action:'getEmpleados'});
   state.empleados=data.map(r=>({nombre:r[0]||'',nss:r[1]||'',dni:r[2]||'',pin:(r[3]||'').toString().trim()})).filter(e=>e.nombre);
 }
-async function cargarFichajesEmpleado(nombre) {
-  try {
+async function cargarFichajesEmpleado(nombre){
+  try{
     const data=await apiGet({action:'getFichajes',nombre});
     state.fichajes[nombre]=Array.isArray(data)?data.map(r=>({fecha:r[0]||'',tipo:r[1]||'',hora:r[2]||'',foto:r[3]||''})):[];
-  } catch{state.fichajes[nombre]=[];}
-}
-async function syncSheets() {
-  try { await cargarEmpleados(); for(const e of state.empleados) await cargarFichajesEmpleado(e.nombre); renderEmpleados(); } catch(e){console.warn(e);}
+  }catch{state.fichajes[nombre]=[];}
 }
 
-function renderEmpleados() {
-  const g=document.getElementById('emp-grid'); if(!g) return;
+function renderEmpleados(){
+  const g=document.getElementById('emp-grid');if(!g)return;
   g.innerHTML=state.empleados.map((emp,i)=>{
     const fichs=state.fichajes[emp.nombre]||[];
     const ultimo=fichs[fichs.length-1];
     const enTrabajo=ultimo&&ultimo.tipo==='ENTRADA';
-    return `<div class="emp-card" onclick="seleccionarEmpleado(${i})">
+    return`<div class="emp-card" onclick="seleccionarEmpleado(${i})">
       <div class="emp-name">${primerNombre(emp.nombre)}</div>
       <span class="badge ${enTrabajo?'badge-in':'badge-out'}">${enTrabajo?'Trabajando':'Descansando'}</span>
     </div>`;
   }).join('');
 }
 
-function seleccionarEmpleado(i) {
-  state.empleadoActual=state.empleados[i]; state.pinIngresado='';
+// Carga paralela: todos los fichajes a la vez en lugar de uno por uno
+async function syncSheets(){
+  try{
+    await cargarEmpleados();
+    await Promise.all(state.empleados.map(e=>cargarFichajesEmpleado(e.nombre)));
+    renderEmpleados();
+  }catch(e){console.warn(e);}
+}
+
+function seleccionarEmpleado(i){
+  state.empleadoActual=state.empleados[i];state.pinIngresado='';
   document.getElementById('pin-name').textContent=state.empleadoActual.nombre;
   document.getElementById('pin-avatar').textContent=getInitials(state.empleadoActual.nombre);
   document.getElementById('pin-error').textContent='';
-  actualizarPinDots(); showScreen('screen-pin');
+  actualizarPinDots();showScreen('screen-pin');
 }
 function addPin(n){if(state.pinIngresado.length>=4)return;state.pinIngresado+=n.toString();actualizarPinDots();if(state.pinIngresado.length===4)setTimeout(verificarPin,120);}
 function deletePin(){state.pinIngresado=state.pinIngresado.slice(0,-1);actualizarPinDots();}
@@ -298,7 +326,7 @@ function actualizarPinDots(){for(let i=0;i<4;i++){const d=document.getElementByI
 function verificarPin(){
   if(state.pinIngresado===(state.empleadoActual.pin||'').toString().trim()){
     mostrarPantallaFichaje();
-  } else {
+  }else{
     document.getElementById('pin-error').textContent='PIN incorrecto. Inténtalo de nuevo.';
     for(let i=0;i<4;i++){const d=document.getElementById('p'+i);if(d)d.className='pin-dot error';}
     state.pinIngresado='';
@@ -306,7 +334,7 @@ function verificarPin(){
   }
 }
 
-async function mostrarPantallaFichaje() {
+async function mostrarPantallaFichaje(){
   showScreen('screen-fichar');
   if(state.tiempoInterval){clearInterval(state.tiempoInterval);state.tiempoInterval=null;}
   const emp=state.empleadoActual;
@@ -319,21 +347,18 @@ async function mostrarPantallaFichaje() {
   const btnE=document.getElementById('btn-entrada');
   const btnS=document.getElementById('btn-salida');
 
-  if(ultimoTipo==='ENTRADA') {
+  if(ultimoTipo==='ENTRADA'){
     wrap.style.display='block';
     document.getElementById('fich-entrada-val').textContent=`${fmtFecha(ultimo.fecha)} · ${fmtHora(ultimo.hora)}`;
-    function actualizarTiempo(){
-      const t=calcTiempo(ultimo);
-      document.getElementById('fich-tiempo-val').textContent=t?t.texto:'—';
-    }
+    function actualizarTiempo(){const t=calcTiempo(ultimo);document.getElementById('fich-tiempo-val').textContent=t?t.texto:'—';}
     actualizarTiempo();
     state.tiempoInterval=setInterval(actualizarTiempo,30000);
-    btnE.className='btn btn-disabled'; btnE.onclick=null;
-    btnS.className='btn btn-danger'; btnS.onclick=()=>registrarFichaje('SALIDA');
-  } else {
+    btnE.className='btn btn-disabled';btnE.onclick=null;
+    btnS.className='btn btn-danger';btnS.onclick=()=>registrarFichaje('SALIDA');
+  }else{
     wrap.style.display='none';
-    btnE.className='btn btn-success'; btnE.onclick=()=>registrarFichaje('ENTRADA');
-    btnS.className='btn btn-disabled'; btnS.onclick=null;
+    btnE.className='btn btn-success';btnE.onclick=()=>registrarFichaje('ENTRADA');
+    btnS.className='btn btn-disabled';btnS.onclick=null;
   }
 
   const ultimos4=fichs.slice(-4).reverse();
@@ -345,11 +370,11 @@ async function mostrarPantallaFichaje() {
       </tr>`).join('')
     :'<tr><td colspan="3" style="color:var(--text3);padding:8px 12px;">Sin fichajes anteriores</td></tr>';
 
-  try {
+  try{
     state.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
     document.getElementById('video').srcObject=state.stream;
     document.getElementById('cam-alert').style.display='none';
-  } catch {
+  }catch{
     document.getElementById('cam-alert').style.display='block';
     document.getElementById('cam-alert').textContent='Cámara no disponible. Se registrará sin foto.';
   }
@@ -364,7 +389,7 @@ function capturarFoto(){
   try{const v=document.getElementById('video'),c=document.getElementById('canvas');c.width=320;c.height=240;c.getContext('2d').drawImage(v,0,0,320,240);return c.toDataURL('image/jpeg',0.65);}catch{return'';}
 }
 
-async function registrarFichaje(tipo) {
+async function registrarFichaje(tipo){
   if(state.tiempoInterval){clearInterval(state.tiempoInterval);state.tiempoInterval=null;}
   const emp=state.empleadoActual;
   const foto=capturarFoto();
@@ -373,28 +398,62 @@ async function registrarFichaje(tipo) {
   const fecha=`${String(ahora.getDate()).padStart(2,'0')}/${String(ahora.getMonth()+1).padStart(2,'0')}/${ahora.getFullYear()}`;
   const hora=`${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
 
-  let tiempoTexto=null;
-  let horasTrabajadas=0;
-  if(tipo==='SALIDA') {
+  let tiempoTexto=null,horasTrabajadas=0;
+  let horasTurnoTexto='',horasDiaTexto='';
+
+  if(tipo==='SALIDA'){
     const fichs=state.fichajes[emp.nombre]||[];
+
+    // Horas del turno actual: desde la ultima ENTRADA
     const ultimaEntrada=[...fichs].reverse().find(f=>f.tipo==='ENTRADA');
+    let minTurno=0;
     if(ultimaEntrada){
-      const t=calcTiempo(ultimaEntrada);
-      if(t){
-        tiempoTexto=`Has trabajado ${t.h} horas y ${t.m} minutos`;
-        horasTrabajadas=t.h;
-      }
+      minTurno=diferenciaMin(ultimaEntrada.hora,hora);
+      const h=Math.floor(minTurno/60),m=minTurno%60;
+      tiempoTexto=`Has trabajado ${h} horas y ${m} minutos`;
+      horasTrabajadas=h;
+      horasTurnoTexto=minATexto(minTurno);
     }
+
+    // Horas del dia laboral completo (turnos anteriores del mismo dia + turno actual)
+    const diaActual=diaLaboral(fecha,hora);
+    let minDia=minTurno;
+    // Recorremos fichajes anteriores buscando pares ENTRADA-SALIDA del mismo dia laboral
+    let i=fichs.length-1;
+    while(i>=0){
+      if(fichs[i].tipo==='SALIDA'){
+        let j=i-1;
+        while(j>=0&&fichs[j].tipo!=='ENTRADA')j--;
+        if(j>=0){
+          const diaEnt=diaLaboral(fichs[j].fecha,fichs[j].hora);
+          if(diaEnt===diaActual){
+            minDia+=diferenciaMin(fichs[j].hora,fichs[i].hora);
+            i=j-1;
+          }else{break;}
+        }else{break;}
+      }else{i--;}
+    }
+    horasDiaTexto=minATexto(minDia);
   }
 
-  if(!state.fichajes[emp.nombre]) state.fichajes[emp.nombre]=[];
+  if(!state.fichajes[emp.nombre])state.fichajes[emp.nombre]=[];
   state.fichajes[emp.nombre].push({fecha,tipo,hora,foto:foto?'si':''});
-  try{await apiPost({nombre:emp.nombre,fecha,tipo,hora,foto:foto?'si':''});}catch(e){console.warn(e);}
+
+  try{
+    await apiPost({
+      nombre:emp.nombre,
+      fecha,tipo,hora,
+      foto:foto?'si':'',
+      horasTurno:horasTurnoTexto,
+      horasDia:horasDiaTexto
+    });
+  }catch(e){console.warn(e);}
+
   renderEmpleados();
   mostrarExito(tipo,hora,foto,tiempoTexto,horasTrabajadas);
 }
 
-function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
+function mostrarExito(tipo,hora,foto,tiempoTexto,horasTrabajadas){
   const icon=document.getElementById('success-icon');
   icon.textContent='✓';
   icon.className='success-icon '+(tipo==='ENTRADA'?'entrada':'salida');
@@ -402,32 +461,32 @@ function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
   document.getElementById('success-sub').textContent=`${primerNombre(state.empleadoActual.nombre)} · ${hora}`;
 
   const tEl=document.getElementById('success-tiempo');
-  if(tiempoTexto && tipo==='SALIDA'){tEl.textContent=tiempoTexto;tEl.style.display='block';}
+  if(tiempoTexto&&tipo==='SALIDA'){tEl.textContent=tiempoTexto;tEl.style.display='block';}
   else{tEl.style.display='none';}
 
   const avisoEl=document.getElementById('aviso-horario');
-  if(tipo==='SALIDA' && horasTrabajadas>=10){
-    avisoEl.style.display='block';
-  } else {
-    avisoEl.style.display='none';
-  }
+  avisoEl.style.display=(tipo==='SALIDA'&&horasTrabajadas>=10)?'block':'none';
 
   const img=document.getElementById('success-photo');
   if(foto){img.src=foto;img.style.display='block';}else{img.style.display='none';}
 
   showScreen('screen-success');
-  setTimeout(()=>showScreen('screen-main'), 5000);
+  setTimeout(()=>showScreen('screen-main'),5000);
 }
 
-async function init() {
-  try {
+async function init(){
+  try{
+    // Carga paralela: empleados primero, luego todos los fichajes a la vez
     await cargarEmpleados();
-    for(const emp of state.empleados) await cargarFichajesEmpleado(emp.nombre);
-    renderEmpleados(); showScreen('screen-main');
-  } catch(e) {
+    await Promise.all(state.empleados.map(e=>cargarFichajesEmpleado(e.nombre)));
+    renderEmpleados();
+    showScreen('screen-main');
+  }catch(e){
     document.getElementById('screen-loading').innerHTML=
-      `<div style="text-align:center;padding:4rem 1rem;"><p style="color:var(--red);margin-bottom:1rem;">Error: ${e.message}</p>
-      <button onclick="init()" style="padding:10px 20px;border-radius:8px;border:none;background:var(--text);color:white;cursor:pointer;font-size:14px;">↻ Reintentar</button></div>`;
+      `<div style="text-align:center;padding:4rem 1rem;">
+        <p style="color:var(--red);margin-bottom:1rem;">Error: ${e.message}</p>
+        <button onclick="init()" style="padding:10px 20px;border-radius:8px;border:none;background:var(--text);color:white;cursor:pointer;font-size:14px;">↻ Reintentar</button>
+      </div>`;
   }
 }
 
