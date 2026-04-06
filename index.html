@@ -21,7 +21,7 @@
   .screen { display: none; } .screen.active { display: block; }
 
   .app-header { display: flex; align-items: center; gap: 14px; margin-bottom: 2rem; }
-  .app-logo { width: 48px; height: 48px; background: var(--text); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; }
+  .app-logo { width: 48px; height: 48px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--text); text-align: center; line-height: 1.1; }
   .app-title { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
   .app-subtitle { font-size: 13px; color: var(--text2); margin-top: 1px; }
   .header-actions { margin-left: auto; }
@@ -95,27 +95,21 @@
   .success-sub { font-size: 14px; color: var(--text2); margin-bottom: 10px; }
   .success-tiempo { font-size: 19px; font-weight: 600; color: var(--green); margin-bottom: 1.5rem; padding: 12px 16px; background: var(--green-bg); border-radius: var(--radius-sm); }
   .photo-thumb { width: 140px; height: 105px; object-fit: cover; border-radius: var(--radius-sm); border: 0.5px solid var(--border); margin: 0 auto 1rem; display: block; }
-  .countdown-bar { height: 4px; background: var(--border2); border-radius: 2px; margin: 1.25rem 0 6px; overflow: hidden; }
-  .countdown-fill { height: 4px; background: var(--text); border-radius: 2px; }
-
-  .loading { text-align: center; padding: 4rem 1rem; }
-  .spinner { width: 36px; height: 36px; border: 3px solid var(--border2); border-top-color: var(--text); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 1rem; }
-  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 <div id="app">
 
   <div id="screen-loading" class="screen active">
-    <div class="loading">
-      <div class="spinner"></div>
+    <div style="text-align:center; padding:4rem 1rem;">
+      <div style="width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--text);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 1rem;"></div>
       <p style="font-size:14px;color:var(--text2);">Cargando...</p>
     </div>
   </div>
 
   <div id="screen-main" class="screen">
     <div class="app-header">
-      <div class="app-logo">🕐</div>
+      <div class="app-logo">B&amp;S</div>
       <div>
         <div class="app-title">Fichaje</div>
         <div class="app-subtitle" id="header-date"></div>
@@ -192,9 +186,10 @@
       <div class="success-title" id="success-title"></div>
       <div class="success-sub" id="success-sub"></div>
       <div class="success-tiempo" id="success-tiempo" style="display:none;"></div>
+      <div id="aviso-horario" style="display:none; margin-bottom:1rem; padding:14px 18px; background:var(--red-bg); border-radius:var(--radius-sm); border:1px solid rgba(155,35,53,0.2);">
+        <p style="color:var(--red); font-size:22px; font-weight:700; margin:0;">⚠️ OJO HORARIO</p>
+      </div>
       <img id="success-photo" class="photo-thumb" src="" alt="" style="display:none;" />
-      <div class="countdown-bar"><div class="countdown-fill" id="countdown-fill" style="width:100%"></div></div>
-      <p style="font-size:12px;color:var(--text3);">Volviendo al inicio en 15 segundos...</p>
     </div>
   </div>
 
@@ -209,20 +204,9 @@ setInterval(updateHeaderDate,60000); updateHeaderDate();
 function getInitials(n){return n.split(' ').map(w=>w[0]).filter(Boolean).slice(0,2).join('').toUpperCase();}
 function primerNombre(n){return n.trim().split(/\s+/)[0];}
 
-// ── PARSEO DE FECHAS Y HORAS ─────────────────────────────────────
-// Sheets devuelve fechas como "5/4/2026" y horas como ISO serial 1899-12-31Thh:mm:ss.000Z
-// La hora real está codificada en UTC en ese serial
-
 function fmtFecha(val) {
   if(!val) return '—';
   const s = String(val).trim();
-  if(s.includes('T')) {
-    const d = new Date(s);
-    // Si año > 1900 es una fecha real
-    if(!isNaN(d) && d.getFullYear() > 1900)
-      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-    return ''; // 1899 = serial de hora, no fecha
-  }
   if(s.includes('/')) {
     const p = s.split('/');
     if(p.length===3) return `${p[0].padStart(2,'0')}/${p[1].padStart(2,'0')}/${p[2]}`;
@@ -233,23 +217,17 @@ function fmtFecha(val) {
 function fmtHora(val) {
   if(!val) return '—';
   const s = String(val).trim();
-  if(s.includes('T')) {
-    const d = new Date(s);
-    if(!isNaN(d)) {
-      // Sheets codifica la hora en UTC dentro del serial 1899
-      const h = String(d.getUTCHours()).padStart(2,'0');
-      const m = String(d.getUTCMinutes()).padStart(2,'0');
-      return `${h}:${m}`;
-    }
-  }
   if(s.includes(':')) return s.substring(0,5);
   return s;
 }
 
 function parseFichajeDate(fecha, hora) {
   try {
-    const f = fmtFecha(fecha); const h = fmtHora(hora);
-    if(f==='—'||h==='—'||!f||!h) return null;
+    const f = fmtFecha(fecha);
+    const h = fmtHora(hora);
+    if(!f || !h || f==='—' || h==='—') return null;
+    if(!/^\d{2}\/\d{2}\/\d{4}$/.test(f)) return null;
+    if(!/^\d{2}:\d{2}$/.test(h)) return null;
     const fp=f.split('/'); const hp=h.split(':');
     return new Date(parseInt(fp[2]),parseInt(fp[1])-1,parseInt(fp[0]),parseInt(hp[0]),parseInt(hp[1]),0);
   } catch{return null;}
@@ -265,7 +243,6 @@ function calcTiempo(entrada) {
   return {h, m, texto:`${h}h ${m}min`};
 }
 
-// ── API ──────────────────────────────────────────────────────────
 async function apiGet(params) {
   const res=await fetch(SCRIPT_URL+'?'+new URLSearchParams(params).toString(),{redirect:'follow'});
   if(!res.ok) throw new Error('HTTP '+res.status);
@@ -303,7 +280,6 @@ function renderEmpleados() {
   }).join('');
 }
 
-// ── PIN ──────────────────────────────────────────────────────────
 function seleccionarEmpleado(i) {
   state.empleadoActual=state.empleados[i]; state.pinIngresado='';
   document.getElementById('pin-name').textContent=state.empleadoActual.nombre;
@@ -326,7 +302,6 @@ function verificarPin(){
   }
 }
 
-// ── PANTALLA FICHAJE ─────────────────────────────────────────────
 async function mostrarPantallaFichaje() {
   showScreen('screen-fichar');
   if(state.tiempoInterval){clearInterval(state.tiempoInterval);state.tiempoInterval=null;}
@@ -385,7 +360,6 @@ function capturarFoto(){
   try{const v=document.getElementById('video'),c=document.getElementById('canvas');c.width=320;c.height=240;c.getContext('2d').drawImage(v,0,0,320,240);return c.toDataURL('image/jpeg',0.65);}catch{return'';}
 }
 
-// ── REGISTRAR FICHAJE ────────────────────────────────────────────
 async function registrarFichaje(tipo) {
   if(state.tiempoInterval){clearInterval(state.tiempoInterval);state.tiempoInterval=null;}
   const emp=state.empleadoActual;
@@ -396,51 +370,7 @@ async function registrarFichaje(tipo) {
   const hora=`${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
 
   let tiempoTexto=null;
+  let horasTrabajadas=0;
   if(tipo==='SALIDA') {
     const fichs=state.fichajes[emp.nombre]||[];
-    const ultimaEntrada=[...fichs].reverse().find(f=>f.tipo==='ENTRADA');
-    if(ultimaEntrada){const t=calcTiempo(ultimaEntrada);if(t)tiempoTexto=`Has trabajado ${t.h} horas y ${t.m} minutos`;}
-  }
-
-  if(!state.fichajes[emp.nombre]) state.fichajes[emp.nombre]=[];
-  state.fichajes[emp.nombre].push({fecha,tipo,hora,foto:foto?'si':''});
-  try{await apiPost({nombre:emp.nombre,fecha,tipo,hora,foto:foto?'si':''});}catch(e){console.warn(e);}
-  renderEmpleados();
-  mostrarExito(tipo,hora,foto,tiempoTexto);
-}
-
-// ── ÉXITO ────────────────────────────────────────────────────────
-function mostrarExito(tipo,hora,foto,tiempoTexto) {
-  const icon=document.getElementById('success-icon');
-  icon.textContent='✓';
-  icon.className='success-icon '+(tipo==='ENTRADA'?'entrada':'salida');
-  document.getElementById('success-title').textContent=tipo==='ENTRADA'?'Entrada registrada':'Salida registrada';
-  document.getElementById('success-sub').textContent=`${primerNombre(state.empleadoActual.nombre)} · ${hora}`;
-  const tEl=document.getElementById('success-tiempo');
-  if(tiempoTexto&&tipo==='SALIDA'){tEl.textContent=tiempoTexto;tEl.style.display='block';}else{tEl.style.display='none';}
-  const img=document.getElementById('success-photo');
-  if(foto){img.src=foto;img.style.display='block';}else{img.style.display='none';}
-  showScreen('screen-success');
-  // Barra de cuenta atrás 15s
-  const fill=document.getElementById('countdown-fill');
-  fill.style.transition='none'; fill.style.width='100%';
-  setTimeout(()=>{fill.style.transition='width 15s linear';fill.style.width='0%';},100);
-  setTimeout(()=>showScreen('screen-main'),3000);
-}
-
-// ── INIT ─────────────────────────────────────────────────────────
-async function init() {
-  try {
-    await cargarEmpleados();
-    for(const emp of state.empleados) await cargarFichajesEmpleado(emp.nombre);
-    renderEmpleados(); showScreen('screen-main');
-  } catch(e) {
-    document.getElementById('screen-loading').innerHTML=
-      `<div class="loading"><p style="color:var(--red);margin-bottom:1rem;">Error: ${e.message}</p>
-      <button onclick="init()" style="padding:10px 20px;border-radius:8px;border:none;background:var(--text);color:white;cursor:pointer;font-size:14px;">↻ Reintentar</button></div>`;
-  }
-}
-init();
-</script>
-</body>
-</html>
+    con
