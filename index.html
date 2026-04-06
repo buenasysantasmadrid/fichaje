@@ -93,8 +93,9 @@
   .success-icon.salida { background: var(--red-bg); }
   .success-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 6px; }
   .success-sub { font-size: 14px; color: var(--text2); margin-bottom: 10px; }
-  .success-tiempo { font-size: 19px; font-weight: 600; color: var(--green); margin-bottom: 1.5rem; padding: 12px 16px; background: var(--green-bg); border-radius: var(--radius-sm); }
+  .success-tiempo { font-size: 19px; font-weight: 600; color: var(--green); margin-bottom: 1rem; padding: 12px 16px; background: var(--green-bg); border-radius: var(--radius-sm); }
   .photo-thumb { width: 140px; height: 105px; object-fit: cover; border-radius: var(--radius-sm); border: 0.5px solid var(--border); margin: 0 auto 1rem; display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -226,11 +227,14 @@ function parseFichajeDate(fecha, hora) {
     const f = fmtFecha(fecha);
     const h = fmtHora(hora);
     if(!f || !h || f==='—' || h==='—') return null;
-    if(!/^\d{2}\/\d{2}\/\d{4}$/.test(f)) return null;
-    if(!/^\d{2}:\d{2}$/.test(h)) return null;
-    const fp=f.split('/'); const hp=h.split(':');
-    return new Date(parseInt(fp[2]),parseInt(fp[1])-1,parseInt(fp[0]),parseInt(hp[0]),parseInt(hp[1]),0);
-  } catch{return null;}
+    const fp = f.split('/');
+    const hp = h.split(':');
+    if(fp.length!==3 || hp.length<2) return null;
+    const d=parseInt(fp[0]), m=parseInt(fp[1]), y=parseInt(fp[2]);
+    const hh=parseInt(hp[0]), mm=parseInt(hp[1]);
+    if(isNaN(d)||isNaN(m)||isNaN(y)||isNaN(hh)||isNaN(mm)) return null;
+    return new Date(y, m-1, d, hh, mm, 0);
+  } catch{ return null; }
 }
 
 function calcTiempo(entrada) {
@@ -426,10 +430,6 @@ async function init() {
       <button onclick="init()" style="padding:10px 20px;border-radius:8px;border:none;background:var(--text);color:white;cursor:pointer;font-size:14px;">↻ Reintentar</button></div>`;
   }
 }
-
-const style=document.createElement('style');
-style.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
-document.head.appendChild(style);
 
 init();
 </script>
