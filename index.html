@@ -373,4 +373,65 @@ async function registrarFichaje(tipo) {
   let horasTrabajadas=0;
   if(tipo==='SALIDA') {
     const fichs=state.fichajes[emp.nombre]||[];
-    con
+    const ultimaEntrada=[...fichs].reverse().find(f=>f.tipo==='ENTRADA');
+    if(ultimaEntrada){
+      const t=calcTiempo(ultimaEntrada);
+      if(t){
+        tiempoTexto=`Has trabajado ${t.h} horas y ${t.m} minutos`;
+        horasTrabajadas=t.h;
+      }
+    }
+  }
+
+  if(!state.fichajes[emp.nombre]) state.fichajes[emp.nombre]=[];
+  state.fichajes[emp.nombre].push({fecha,tipo,hora,foto:foto?'si':''});
+  try{await apiPost({nombre:emp.nombre,fecha,tipo,hora,foto:foto?'si':''});}catch(e){console.warn(e);}
+  renderEmpleados();
+  mostrarExito(tipo,hora,foto,tiempoTexto,horasTrabajadas);
+}
+
+function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
+  const icon=document.getElementById('success-icon');
+  icon.textContent='✓';
+  icon.className='success-icon '+(tipo==='ENTRADA'?'entrada':'salida');
+  document.getElementById('success-title').textContent=tipo==='ENTRADA'?'Entrada registrada':'Salida registrada';
+  document.getElementById('success-sub').textContent=`${primerNombre(state.empleadoActual.nombre)} · ${hora}`;
+
+  const tEl=document.getElementById('success-tiempo');
+  if(tiempoTexto && tipo==='SALIDA'){tEl.textContent=tiempoTexto;tEl.style.display='block';}
+  else{tEl.style.display='none';}
+
+  const avisoEl=document.getElementById('aviso-horario');
+  if(tipo==='SALIDA' && horasTrabajadas>=10){
+    avisoEl.style.display='block';
+  } else {
+    avisoEl.style.display='none';
+  }
+
+  const img=document.getElementById('success-photo');
+  if(foto){img.src=foto;img.style.display='block';}else{img.style.display='none';}
+
+  showScreen('screen-success');
+  setTimeout(()=>showScreen('screen-main'), 5000);
+}
+
+async function init() {
+  try {
+    await cargarEmpleados();
+    for(const emp of state.empleados) await cargarFichajesEmpleado(emp.nombre);
+    renderEmpleados(); showScreen('screen-main');
+  } catch(e) {
+    document.getElementById('screen-loading').innerHTML=
+      `<div style="text-align:center;padding:4rem 1rem;"><p style="color:var(--red);margin-bottom:1rem;">Error: ${e.message}</p>
+      <button onclick="init()" style="padding:10px 20px;border-radius:8px;border:none;background:var(--text);color:white;cursor:pointer;font-size:14px;">↻ Reintentar</button></div>`;
+  }
+}
+
+const style=document.createElement('style');
+style.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(style);
+
+init();
+</script>
+</body>
+</html>
