@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fichaje · Buenas y Santas</title>
 <link rel="icon" href="logo_buenasysantas.jpg" type="image/jpeg">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #f7f5f0;
@@ -15,11 +15,11 @@
   --border2: rgba(0,0,0,0.15);
   --text: #1c1a16;
   --text2: #7a7669;
-  --text3: #b0ad a4;
-  --olive: #4a5240;
-  --olive-light: #eef0eb;
-  --red: #8b2131;
-  --red-light: #fbecee;
+  --text3: #b0ada4;
+  --olive: #2d6a35;
+  --olive-light: #e6f4e8;
+  --red: #b5182b;
+  --red-light: #fde8eb;
   --amber: #92600a;
   --amber-light: #fdf3e3;
   --r: 16px;
@@ -28,7 +28,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 body {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -63,13 +63,13 @@ body {
 
 /* ── HEADER ── */
 .app-header {
-  display: flex; align-items: center; gap: 14px;
+  display: flex; align-items: center; gap: 16px;
   margin-bottom: 2rem;
   padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--border);
 }
 .logo-wrap {
-  width: 48px; height: 48px; border-radius: 12px;
+  width: 64px; height: 64px; border-radius: 14px;
   overflow: hidden; flex-shrink: 0;
   border: 1px solid var(--border2);
   background: white;
@@ -77,11 +77,14 @@ body {
 .logo-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .header-text { flex: 1; }
 .app-title {
-  font-family: 'Instrument Serif', serif;
-  font-size: 24px; font-weight: 400; letter-spacing: -0.3px;
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 700; letter-spacing: -0.5px;
   color: var(--text); line-height: 1;
 }
-.app-date { font-size: 12px; color: var(--text2); margin-top: 3px; font-weight: 400; }
+.app-date {
+  font-size: 14px; color: var(--text2); margin-top: 4px;
+  font-weight: 400; letter-spacing: 0.01em;
+}
 .sync-btn {
   width: 36px; height: 36px; border-radius: 50%;
   border: 1px solid var(--border2);
@@ -118,29 +121,28 @@ body {
   box-shadow: 0 8px 24px rgba(0,0,0,0.07);
 }
 .emp-card:active { transform: translateY(0); }
-.emp-avatar {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: var(--surface2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px; font-weight: 600; color: var(--text2);
-  flex-shrink: 0;
+.emp-name {
+  font-size: 16px; font-weight: 600; color: var(--text);
+  font-family: 'Playfair Display', serif;
 }
-.emp-avatar.working { background: var(--olive-light); color: var(--olive); }
-.emp-name { font-size: 15px; font-weight: 600; color: var(--text); }
 .emp-status {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11px; font-weight: 500;
-  padding: 3px 9px; border-radius: 20px;
-  width: fit-content;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 700;
+  padding: 5px 11px; border-radius: 20px;
+  width: fit-content; letter-spacing: 0.01em;
 }
 .status-working {
-  background: var(--olive-light); color: var(--olive);
+  background: var(--olive-light);
+  color: var(--olive);
+  border: 1.5px solid rgba(45,106,53,0.25);
 }
 .status-resting {
-  background: var(--surface2); color: var(--text2);
+  background: var(--red-light);
+  color: var(--red);
+  border: 1.5px solid rgba(181,24,43,0.2);
 }
 .status-dot {
-  width: 6px; height: 6px; border-radius: 50%;
+  width: 7px; height: 7px; border-radius: 50%;
   background: currentColor;
 }
 .status-dot.pulse { animation: pulse 1.5s ease-in-out infinite; }
@@ -149,7 +151,7 @@ body {
 .back-btn {
   display: inline-flex; align-items: center; gap: 7px;
   background: none; border: none; padding: 0;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px; color: var(--text2);
   cursor: pointer; margin-bottom: 1.75rem;
   transition: color 0.15s;
@@ -159,16 +161,9 @@ body {
 
 /* ── PIN SCREEN ── */
 .pin-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; }
-.pin-avatar-lg {
-  width: 80px; height: 80px; border-radius: 50%;
-  background: var(--surface2); border: 1px solid var(--border2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px; font-weight: 600; color: var(--text2);
-  margin-bottom: 14px;
-}
 .pin-name-lg {
-  font-family: 'Instrument Serif', serif;
-  font-size: 26px; font-weight: 400; letter-spacing: -0.5px;
+  font-family: 'Playfair Display', serif;
+  font-size: 30px; font-weight: 700; letter-spacing: -0.5px;
   margin-bottom: 6px; text-align: center;
 }
 .pin-hint { font-size: 13px; color: var(--text2); margin-bottom: 2rem; }
@@ -189,7 +184,7 @@ body {
   padding: 16px; border-radius: var(--r-sm);
   border: 1px solid var(--border);
   background: var(--surface);
-  font-family: 'Outfit', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 22px; font-weight: 400;
   color: var(--text); cursor: pointer;
   transition: all 0.12s; text-align: center;
@@ -202,7 +197,7 @@ body {
 
 /* ── FICHAR SCREEN ── */
 .fich-name {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 38px; letter-spacing: -1px;
   text-align: center; margin-bottom: 1.25rem;
   line-height: 1;
@@ -242,18 +237,18 @@ body {
 .btn-fichar {
   display: flex; align-items: center; justify-content: center; gap: 10px;
   width: 100%; padding: 16px 20px; border-radius: var(--r-sm);
-  font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 600;
+  font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
   cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
   letter-spacing: 0.01em;
 }
 .btn-entrada {
   background: var(--olive); color: white; border-color: var(--olive);
 }
-.btn-entrada:hover { background: #3a4232; }
+.btn-entrada:hover { background: #235229; }
 .btn-salida {
   background: var(--red); color: white; border-color: var(--red);
 }
-.btn-salida:hover { background: #6e1a28; }
+.btn-salida:hover { background: #8c1020; }
 .btn-disabled {
   background: var(--surface2); color: var(--text3, #b0ada4);
   cursor: not-allowed; opacity: 0.45; border-color: var(--border);
@@ -284,27 +279,33 @@ body {
   animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
 }
 .success-icon {
-  width: 80px; height: 80px; border-radius: 50%;
+  width: 90px; height: 90px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 1.25rem; font-size: 34px;
+  margin-bottom: 1.25rem; font-size: 38px;
 }
 .icon-entrada { background: var(--olive-light); }
 .icon-salida { background: var(--red-light); }
 .success-name {
-  font-family: 'Instrument Serif', serif;
-  font-size: 32px; letter-spacing: -0.5px; margin-bottom: 4px;
+  font-family: 'Playfair Display', serif;
+  font-size: 36px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px;
 }
-.success-hora { font-size: 14px; color: var(--text2); margin-bottom: 1.25rem; }
+.success-hora {
+  font-size: 22px; font-weight: 700; color: var(--text);
+  margin-bottom: 1.25rem; letter-spacing: -0.3px;
+}
 .success-tiempo {
   background: var(--olive-light); color: var(--olive);
-  padding: 12px 20px; border-radius: var(--r-sm);
-  font-size: 16px; font-weight: 600; margin-bottom: 1rem;
+  padding: 16px 24px; border-radius: var(--r-sm);
+  font-size: 22px; font-weight: 700; margin-bottom: 1rem;
+  border: 1.5px solid rgba(45,106,53,0.2);
+  letter-spacing: -0.3px;
 }
 .aviso-ojo {
   background: var(--red-light); color: var(--red);
-  padding: 14px 20px; border-radius: var(--r-sm);
-  font-size: 17px; font-weight: 700; margin-bottom: 1rem;
-  border: 1px solid rgba(139,33,49,0.15);
+  padding: 18px 24px; border-radius: var(--r-sm);
+  font-size: 26px; font-weight: 800; margin-bottom: 1rem;
+  border: 2px solid rgba(181,24,43,0.25);
+  letter-spacing: -0.3px;
 }
 .success-photo {
   width: 120px; height: 90px; object-fit: cover;
@@ -328,7 +329,7 @@ body {
 .retry-btn {
   padding: 10px 24px; border-radius: var(--r-sm);
   background: var(--text); color: white; border: none;
-  font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
   cursor: pointer;
 }
 </style>
@@ -371,7 +372,6 @@ body {
       Volver
     </button>
     <div class="pin-wrap">
-      <div class="pin-avatar-lg" id="pin-avatar"></div>
       <div class="pin-name-lg" id="pin-name"></div>
       <div class="pin-hint">Introduce tu PIN de 4 dígitos</div>
       <div class="pin-dots">
@@ -405,13 +405,11 @@ body {
       Volver
     </button>
 
-    <!-- Spinner mientras carga datos del empleado -->
     <div id="fichar-loading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:16px;">
       <div class="spinner"></div>
       <div class="loading-text">Cargando fichajes...</div>
     </div>
 
-    <!-- Contenido real (oculto hasta cargar) -->
     <div id="fichar-content" style="display:none; flex-direction:column; flex:1;">
       <div class="fich-name" id="fich-nombre"></div>
       <div id="fich-entrada-wrap" class="info-row" style="display:none;">
@@ -470,7 +468,6 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypMnnN4c7Wh8FQzFFrE
 
 const state = {
   empleados: [],
-  // fichajes solo se cargan fresh, nunca se usan datos viejos
   empleadoActual: null,
   pinIngresado: '',
   stream: null,
@@ -478,13 +475,11 @@ const state = {
   countdownTimeout: null,
 };
 
-// ── Pantallas ────────────────────────────────────────────────────
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-// ── Fecha header ─────────────────────────────────────────────────
 function updateDate() {
   const el = document.getElementById('header-date');
   if (el) el.textContent = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -492,7 +487,6 @@ function updateDate() {
 updateDate();
 setInterval(updateDate, 60000);
 
-// ── Utils ────────────────────────────────────────────────────────
 function getInitials(n) {
   return n.trim().split(/\s+/).map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
 }
@@ -549,7 +543,6 @@ function calcTiempo(fichaje) {
   } catch { return null; }
 }
 
-// ── API ──────────────────────────────────────────────────────────
 async function apiGet(params) {
   const res = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params).toString(), { redirect: 'follow' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -565,7 +558,6 @@ async function apiPost(data) {
   return res.json();
 }
 
-// ── Cargar empleados (solo nombres, sin fichajes) ────────────────
 async function cargarEmpleados() {
   const data = await apiGet({ action: 'getEmpleados' });
   state.empleados = data
@@ -578,7 +570,6 @@ async function cargarEmpleados() {
     .filter(e => e.nombre);
 }
 
-// ── Render empleados (sin estado trabajando/descansando hasta sync) ──
 function renderEmpleados(fichajesMap) {
   const g = document.getElementById('emp-grid');
   if (!g) return;
@@ -588,7 +579,6 @@ function renderEmpleados(fichajesMap) {
     const working = ultimo && ultimo.tipo === 'ENTRADA';
     const hasData = fichs !== null;
     return `<div class="emp-card" onclick="seleccionarEmpleado(${i})" style="animation-delay:${i*0.04}s">
-      <div class="emp-avatar ${working ? 'working' : ''}">${getInitials(emp.nombre)}</div>
       <div>
         <div class="emp-name">${primerNombre(emp.nombre)}</div>
         ${hasData
@@ -603,8 +593,7 @@ function renderEmpleados(fichajesMap) {
   }).join('');
 }
 
-// ── Sync completo (botón ↻): carga empleados + todos sus fichajes ──
-let syncFichajesMap = null; // cache de la última sync completa
+let syncFichajesMap = null;
 
 async function syncSheets() {
   const btn = document.getElementById('sync-btn');
@@ -625,18 +614,15 @@ async function syncSheets() {
   finally { if (btn) btn.classList.remove('spinning'); }
 }
 
-// ── Seleccionar empleado → PIN (sin cargar fichajes todavía) ─────
 function seleccionarEmpleado(i) {
   state.empleadoActual = state.empleados[i];
   state.pinIngresado = '';
   document.getElementById('pin-name').textContent = state.empleadoActual.nombre;
-  document.getElementById('pin-avatar').textContent = getInitials(state.empleadoActual.nombre);
   document.getElementById('pin-error').textContent = '';
   actualizarPinDots();
   showScreen('screen-pin');
 }
 
-// ── PIN ──────────────────────────────────────────────────────────
 function addPin(n) {
   if (state.pinIngresado.length >= 4) return;
   state.pinIngresado += n.toString();
@@ -665,19 +651,16 @@ function verificarPin() {
   }
 }
 
-// ── Pantalla fichar: muestra loading, luego carga fresh data ─────
 async function mostrarPantallaFichaje() {
   showScreen('screen-fichar');
   if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
 
-  // Mostrar spinner, ocultar contenido
   document.getElementById('fichar-loading').style.display = 'flex';
   document.getElementById('fichar-content').style.display = 'none';
 
   const emp = state.empleadoActual;
   document.getElementById('fich-nombre').textContent = primerNombre(emp.nombre);
 
-  // Cargar fichajes FRESH (sin datos cacheados)
   let fichs = [];
   try {
     const data = await apiGet({ action: 'getFichajes', nombre: emp.nombre });
@@ -686,10 +669,8 @@ async function mostrarPantallaFichaje() {
     console.warn('Error cargando fichajes:', e);
   }
 
-  // Actualizar cache para el mapa de la pantalla principal
   if (syncFichajesMap) syncFichajesMap[emp.nombre] = fichs;
 
-  // Ocultar spinner, mostrar contenido
   document.getElementById('fichar-loading').style.display = 'none';
   document.getElementById('fichar-content').style.display = 'flex';
 
@@ -716,7 +697,6 @@ async function mostrarPantallaFichaje() {
     btnS.className = 'btn-fichar btn-disabled'; btnS.onclick = null;
   }
 
-  // Historial
   const ultimos4 = fichs.slice(-4).reverse();
   document.getElementById('fich-history').innerHTML = ultimos4.length
     ? ultimos4.map(f => `<div class="hist-row">
@@ -726,7 +706,6 @@ async function mostrarPantallaFichaje() {
       </div>`).join('')
     : '<div class="hist-row" style="color:var(--text2);">Sin fichajes anteriores</div>';
 
-  // Cámara
   try {
     state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
     document.getElementById('video').srcObject = state.stream;
@@ -792,14 +771,12 @@ async function registrarFichaje(tipo) {
     horasDiaTexto = minATexto(minDia);
   }
 
-  // Actualizar cache local
   if (syncFichajesMap) {
     if (!syncFichajesMap[emp.nombre]) syncFichajesMap[emp.nombre] = [];
     syncFichajesMap[emp.nombre].push({ fecha, tipo, hora, foto: foto ? 'si' : '' });
   }
   renderEmpleados(syncFichajesMap);
 
-  // Enviar a sheets (sin bloquear UI)
   apiPost({ nombre: emp.nombre, fecha, tipo, hora, foto: foto ? 'si' : '', horasTurno: horasTurnoTexto, horasDia: horasDiaTexto })
     .catch(e => console.warn('Error guardando fichaje:', e));
 
@@ -817,7 +794,7 @@ function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
   if (tiempoTexto && tipo === 'SALIDA') { tEl.textContent = tiempoTexto; tEl.style.display = 'block'; }
   else { tEl.style.display = 'none'; }
 
-  document.getElementById('aviso-ojo').style.display = (tipo === 'SALIDA' && horasTrabajadas >= 10) ? 'block' : 'none';
+  document.getElementById('aviso-ojo').style.display = (tipo === 'SALIDA' && horasTrabajadas >= 11) ? 'block' : 'none';
 
   const img = document.getElementById('success-photo');
   if (foto) { img.src = foto; img.style.display = 'block'; }
@@ -825,7 +802,6 @@ function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
 
   showScreen('screen-success');
 
-  // Countdown bar
   const bar = document.getElementById('countdown-bar');
   if (bar) {
     bar.style.transition = 'none';
@@ -840,14 +816,11 @@ function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
   state.countdownTimeout = setTimeout(() => showScreen('screen-main'), 5000);
 }
 
-// ── Init: carga rápida — solo empleados, sin fichajes ────────────
 async function init() {
   try {
     await cargarEmpleados();
-    // Mostrar empleados sin estado (más rápido)
     renderEmpleados(null);
     showScreen('screen-main');
-    // Luego cargar fichajes en background para mostrar estado
     const results = await Promise.all(
       state.empleados.map(async e => {
         try {
