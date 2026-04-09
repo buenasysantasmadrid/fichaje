@@ -395,7 +395,7 @@ body {
 
 <script>
 // ══════════════════════════════════════════════════════════
-// CONFIGURACIÓN — pega aquí tu URL de Apps Script
+// CONFIGURACIÓN
 // ══════════════════════════════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypMnnN4c7Wh8FQzFFrE9r_dxH2JlfhvwikBo7-iGks0KFegjEm0XAdWEymNmie4VlU/exec';
 
@@ -412,13 +412,10 @@ const state = {
 };
 
 // ══════════════════════════════════════════════════════════
-// API — usa JSONP para GET (evita bloqueo CORS de Google)
+// API
 // ══════════════════════════════════════════════════════════
 
-/**
- * JSONP GET — funciona sin CORS porque usa <script> en lugar de fetch.
- * El Apps Script debe responder con callback(data) cuando se pasa ?callback=xxx
- */
+// GET via JSONP — evita CORS en peticiones de lectura
 function apiGetJSONP(params, timeoutMs) {
   timeoutMs = timeoutMs || 15000;
   return new Promise(function(resolve, reject) {
@@ -451,42 +448,15 @@ function apiGetJSONP(params, timeoutMs) {
   });
 }
 
-/**
- * POST mediante iframe oculto — el navegador no aplica CORS a envíos de formulario.
- * No necesitamos la respuesta del POST (igual que antes), solo que el dato llegue.
- */
+// POST via fetch con mode:'no-cors' — fire & forget, no leemos la respuesta
+// pero el dato SÍ llega al Apps Script (igual que antes)
 function apiPostForm(data) {
-  return new Promise(function(resolve) {
-    var iframeName = '_post_iframe_' + Date.now();
-    var iframe = document.createElement('iframe');
-    iframe.name = iframeName;
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    var form = document.createElement('form');
-    form.method = 'POST';
-    form.action = SCRIPT_URL;
-    form.target = iframeName;
-    form.style.display = 'none';
-
-    // Enviamos el payload JSON como campo oculto "data"
-    var input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'data';
-    input.value = JSON.stringify(data);
-    form.appendChild(input);
-
-    document.body.appendChild(form);
-
-    setTimeout(function() {
-      form.submit();
-      // Damos 3 s para que el servidor procese antes de limpiar
-      setTimeout(function() {
-        try { form.remove(); iframe.remove(); } catch(e) {}
-        resolve({ ok: true });
-      }, 3000);
-    }, 50);
-  });
+  return fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(data)
+  }).catch(function(e) { console.warn('POST error:', e); });
 }
 
 // ══════════════════════════════════════════════════════════
@@ -508,6 +478,7 @@ setInterval(updateDate, 60000);
 // HELPERS
 // ══════════════════════════════════════════════════════════
 function primerNombre(n) { return n.trim().split(/\s+/)[0]; }
+
 function fmtFecha(v) {
   if (!v) return '—';
   var s = String(v).trim();
@@ -517,20 +488,24 @@ function fmtFecha(v) {
   }
   return s;
 }
+
 function fmtHora(v) {
   if (!v) return '—';
   return String(v).trim().substring(0, 5);
 }
+
 function horaAMin(h) {
   var s = String(h).trim().substring(0, 5).split(':');
   if (s.length < 2) return 0;
   return parseInt(s[0]) * 60 + parseInt(s[1]);
 }
+
 function diferenciaMin(e, s) {
   var em = horaAMin(e), sm = horaAMin(s);
   if (sm < em) sm += 24 * 60;
   return sm - em;
 }
+
 function diaLaboral(fecha, hora) {
   if (horaAMin(hora) < 120) {
     var p = String(fecha).trim().split('/');
@@ -542,10 +517,12 @@ function diaLaboral(fecha, hora) {
   }
   return String(fecha).trim();
 }
+
 function minATexto(m) {
   if (!m || m <= 0) return '0h 0min';
   return Math.floor(m/60) + 'h ' + (m%60) + 'min';
 }
+
 function calcTiempo(fichaje) {
   try {
     var f = fmtFecha(fichaje.fecha), h = fmtHora(fichaje.hora);
@@ -565,7 +542,6 @@ function calcTiempo(fichaje) {
 // ══════════════════════════════════════════════════════════
 async function cargarEmpleados() {
   var data = await apiGetJSONP({ action: 'getEmpleados' });
-  // El script puede devolver el array directamente o envuelto en {data:[...]}
   var rows = Array.isArray(data) ? data : (data.data || []);
   state.empleados = rows
     .map(function(r) {
@@ -615,7 +591,7 @@ async function syncSheets() {
           return [e.nombre, rows.map(function(r) {
             return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
           })];
-        } catch(e) { return [e.nombre, []]; }
+        } catch(err) { return [e.nombre, []]; }
       })
     );
     syncFichajesMap = Object.fromEntries(results);
@@ -810,7 +786,7 @@ async function registrarFichaje(tipo) {
   }
   renderEmpleados(syncFichajesMap);
 
-  // Enviar al Apps Script (sin esperar respuesta — fire & forget)
+  // Enviar al Apps Script — fire & forget con fetch no-cors
   apiPostForm({
     action:       'addFichaje',
     nombre:       emp.nombre,
@@ -867,7 +843,6 @@ async function init() {
     renderEmpleados(null);
     showScreen('screen-main');
 
-    // Cargar estados en paralelo
     var results = await Promise.all(
       state.empleados.map(async function(e) {
         try {
