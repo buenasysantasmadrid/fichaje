@@ -94,7 +94,7 @@ body {
   transition: all 0.2s; flex-shrink: 0;
 }
 .sync-btn:hover { background: var(--surface2); color: var(--text); }
-.sync-btn.spinning { animation: spin 0.8s linear infinite; }
+.sync-btn.spinning svg { animation: spin 0.8s linear infinite; }
 
 /* ── SECTION LABEL ── */
 .section-label {
@@ -131,20 +131,9 @@ body {
   padding: 5px 11px; border-radius: 20px;
   width: fit-content; letter-spacing: 0.01em;
 }
-.status-working {
-  background: var(--olive-light);
-  color: var(--olive);
-  border: 1.5px solid rgba(45,106,53,0.25);
-}
-.status-resting {
-  background: var(--red-light);
-  color: var(--red);
-  border: 1.5px solid rgba(181,24,43,0.2);
-}
-.status-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: currentColor;
-}
+.status-working { background: var(--olive-light); color: var(--olive); border: 1.5px solid rgba(45,106,53,0.25); }
+.status-resting { background: var(--red-light); color: var(--red); border: 1.5px solid rgba(181,24,43,0.2); }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .status-dot.pulse { animation: pulse 1.5s ease-in-out infinite; }
 
 /* ── BACK BTN ── */
@@ -187,8 +176,7 @@ body {
   font-family: 'DM Sans', sans-serif;
   font-size: 22px; font-weight: 400;
   color: var(--text); cursor: pointer;
-  transition: all 0.12s; text-align: center;
-  line-height: 1;
+  transition: all 0.12s; text-align: center; line-height: 1;
 }
 .num-btn:hover { background: var(--surface2); border-color: var(--border2); }
 .num-btn:active { transform: scale(0.94); background: var(--surface2); }
@@ -199,17 +187,11 @@ body {
 .fich-name {
   font-family: 'Playfair Display', serif;
   font-size: 38px; letter-spacing: -1px;
-  text-align: center; margin-bottom: 1.25rem;
-  line-height: 1;
+  text-align: center; margin-bottom: 1.25rem; line-height: 1;
 }
 .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
-.info-chip {
-  border-radius: var(--r-sm); padding: 12px 14px;
-}
-.info-chip-label {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; margin-bottom: 4px;
-}
+.info-chip { border-radius: var(--r-sm); padding: 12px 14px; }
+.info-chip-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
 .info-chip-value { font-size: 17px; font-weight: 600; }
 .chip-green { background: var(--olive-light); }
 .chip-green .info-chip-label { color: var(--olive); }
@@ -219,10 +201,8 @@ body {
 .chip-gray .info-chip-value { color: var(--text); }
 .video-wrap {
   border-radius: var(--r); overflow: hidden;
-  border: 1px solid var(--border);
-  background: #1a1a1a;
-  aspect-ratio: 4/3; margin-bottom: 1rem;
-  position: relative;
+  border: 1px solid var(--border); background: #1a1a1a;
+  aspect-ratio: 4/3; margin-bottom: 1rem; position: relative;
 }
 #video { width: 100%; display: block; }
 #canvas { display: none; }
@@ -241,29 +221,15 @@ body {
   cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
   letter-spacing: 0.01em;
 }
-.btn-entrada {
-  background: var(--olive); color: white; border-color: var(--olive);
-}
+.btn-entrada { background: var(--olive); color: white; border-color: var(--olive); }
 .btn-entrada:hover { background: #235229; }
-.btn-salida {
-  background: var(--red); color: white; border-color: var(--red);
-}
+.btn-salida { background: var(--red); color: white; border-color: var(--red); }
 .btn-salida:hover { background: #8c1020; }
-.btn-disabled {
-  background: var(--surface2); color: var(--text3, #b0ada4);
-  cursor: not-allowed; opacity: 0.45; border-color: var(--border);
-}
+.btn-disabled { background: var(--surface2); color: var(--text3); cursor: not-allowed; opacity: 0.45; border-color: var(--border); }
 .hist-wrap { margin-top: 0.25rem; }
-.hist-title {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--text2); margin-bottom: 8px;
-}
+.hist-title { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text2); margin-bottom: 8px; }
 .hist-list { background: var(--surface); border-radius: var(--r-sm); border: 1px solid var(--border); overflow: hidden; }
-.hist-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; border-bottom: 1px solid var(--border);
-  font-size: 13px;
-}
+.hist-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
 .hist-row:last-child { border-bottom: none; }
 .hist-type { font-weight: 600; min-width: 60px; }
 .hist-type.e { color: var(--olive); }
@@ -285,53 +251,18 @@ body {
 }
 .icon-entrada { background: var(--olive-light); }
 .icon-salida { background: var(--red-light); }
-.success-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 36px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px;
-}
-.success-hora {
-  font-size: 22px; font-weight: 700; color: var(--text);
-  margin-bottom: 1.25rem; letter-spacing: -0.3px;
-}
-.success-tiempo {
-  background: var(--olive-light); color: var(--olive);
-  padding: 16px 24px; border-radius: var(--r-sm);
-  font-size: 22px; font-weight: 700; margin-bottom: 1rem;
-  border: 1.5px solid rgba(45,106,53,0.2);
-  letter-spacing: -0.3px;
-}
-.aviso-ojo {
-  background: var(--red-light); color: var(--red);
-  padding: 18px 24px; border-radius: var(--r-sm);
-  font-size: 26px; font-weight: 800; margin-bottom: 1rem;
-  border: 2px solid rgba(181,24,43,0.25);
-  letter-spacing: -0.3px;
-}
-.success-photo {
-  width: 120px; height: 90px; object-fit: cover;
-  border-radius: var(--r-sm); border: 1px solid var(--border);
-  margin-bottom: 1rem;
-}
-.countdown-bar-wrap {
-  width: 100%; max-width: 240px; height: 3px;
-  background: var(--border); border-radius: 99px;
-  margin-top: 1.5rem; overflow: hidden;
-}
-.countdown-bar {
-  height: 100%; background: var(--olive);
-  border-radius: 99px;
-  transition: width linear;
-}
+.success-name { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+.success-hora { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; letter-spacing: -0.3px; }
+.success-tiempo { background: var(--olive-light); color: var(--olive); padding: 16px 24px; border-radius: var(--r-sm); font-size: 22px; font-weight: 700; margin-bottom: 1rem; border: 1.5px solid rgba(45,106,53,0.2); letter-spacing: -0.3px; }
+.aviso-ojo { background: var(--red-light); color: var(--red); padding: 18px 24px; border-radius: var(--r-sm); font-size: 26px; font-weight: 800; margin-bottom: 1rem; border: 2px solid rgba(181,24,43,0.25); letter-spacing: -0.3px; }
+.success-photo { width: 120px; height: 90px; object-fit: cover; border-radius: var(--r-sm); border: 1px solid var(--border); margin-bottom: 1rem; }
+.countdown-bar-wrap { width: 100%; max-width: 240px; height: 3px; background: var(--border); border-radius: 99px; margin-top: 1.5rem; overflow: hidden; }
+.countdown-bar { height: 100%; background: var(--olive); border-radius: 99px; transition: width linear; }
 
 /* ── ERROR ── */
 .error-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; }
-.error-msg { font-size: 14px; color: var(--red); }
-.retry-btn {
-  padding: 10px 24px; border-radius: var(--r-sm);
-  background: var(--text); color: white; border: none;
-  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
-  cursor: pointer;
-}
+.error-msg { font-size: 14px; color: var(--red); max-width: 280px; line-height: 1.6; }
+.retry-btn { padding: 10px 24px; border-radius: var(--r-sm); background: var(--text); color: white; border: none; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -349,7 +280,7 @@ body {
   <div id="screen-main" class="screen">
     <div class="app-header">
       <div class="logo-wrap">
-        <img src="logo_buenasysantas.jpg" alt="Logo">
+        <img src="logo_buenasysantas.jpg" alt="Logo" onerror="this.style.display='none'">
       </div>
       <div class="header-text">
         <div class="app-title">Fichaje</div>
@@ -404,12 +335,10 @@ body {
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       Volver
     </button>
-
     <div id="fichar-loading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:16px;">
       <div class="spinner"></div>
       <div class="loading-text">Cargando fichajes...</div>
     </div>
-
     <div id="fichar-content" style="display:none; flex-direction:column; flex:1;">
       <div class="fich-name" id="fich-nombre"></div>
       <div id="fich-entrada-wrap" class="info-row" style="display:none;">
@@ -462,10 +391,17 @@ body {
   </div>
 
 </div>
+<canvas id="canvas" style="display:none;"></canvas>
 
 <script>
+// ══════════════════════════════════════════════════════════
+// CONFIGURACIÓN — pega aquí tu URL de Apps Script
+// ══════════════════════════════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypMnnN4c7Wh8FQzFFrE9r_dxH2JlfhvwikBo7-iGks0KFegjEm0XAdWEymNmie4VlU/exec';
 
+// ══════════════════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════════════════
 const state = {
   empleados: [],
   empleadoActual: null,
@@ -475,28 +411,109 @@ const state = {
   countdownTimeout: null,
 };
 
+// ══════════════════════════════════════════════════════════
+// API — usa JSONP para GET (evita bloqueo CORS de Google)
+// ══════════════════════════════════════════════════════════
+
+/**
+ * JSONP GET — funciona sin CORS porque usa <script> en lugar de fetch.
+ * El Apps Script debe responder con callback(data) cuando se pasa ?callback=xxx
+ */
+function apiGetJSONP(params, timeoutMs) {
+  timeoutMs = timeoutMs || 15000;
+  return new Promise(function(resolve, reject) {
+    var cbName = '_gs_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    var script = document.createElement('script');
+    var timer = setTimeout(function() {
+      cleanup();
+      reject(new Error('Timeout'));
+    }, timeoutMs);
+
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = function(data) {
+      cleanup();
+      resolve(data);
+    };
+
+    params.callback = cbName;
+    var qs = Object.keys(params).map(function(k) {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+    }).join('&');
+
+    script.src = SCRIPT_URL + '?' + qs;
+    script.onerror = function() { cleanup(); reject(new Error('Error de red')); };
+    document.head.appendChild(script);
+  });
+}
+
+/**
+ * POST mediante iframe oculto — el navegador no aplica CORS a envíos de formulario.
+ * No necesitamos la respuesta del POST (igual que antes), solo que el dato llegue.
+ */
+function apiPostForm(data) {
+  return new Promise(function(resolve) {
+    var iframeName = '_post_iframe_' + Date.now();
+    var iframe = document.createElement('iframe');
+    iframe.name = iframeName;
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = SCRIPT_URL;
+    form.target = iframeName;
+    form.style.display = 'none';
+
+    // Enviamos el payload JSON como campo oculto "data"
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'data';
+    input.value = JSON.stringify(data);
+    form.appendChild(input);
+
+    document.body.appendChild(form);
+
+    setTimeout(function() {
+      form.submit();
+      // Damos 3 s para que el servidor procese antes de limpiar
+      setTimeout(function() {
+        try { form.remove(); iframe.remove(); } catch(e) {}
+        resolve({ ok: true });
+      }, 3000);
+    }, 50);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// PANTALLAS
+// ══════════════════════════════════════════════════════════
 function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
 }
 
 function updateDate() {
-  const el = document.getElementById('header-date');
+  var el = document.getElementById('header-date');
   if (el) el.textContent = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 updateDate();
 setInterval(updateDate, 60000);
 
-function getInitials(n) {
-  return n.trim().split(/\s+/).map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
-}
+// ══════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════
 function primerNombre(n) { return n.trim().split(/\s+/)[0]; }
 function fmtFecha(v) {
   if (!v) return '—';
-  const s = String(v).trim();
+  var s = String(v).trim();
   if (s.includes('/')) {
-    const p = s.split('/');
-    if (p.length === 3) return `${p[0].padStart(2,'0')}/${p[1].padStart(2,'0')}/${p[2]}`;
+    var p = s.split('/');
+    if (p.length === 3) return p[0].padStart(2,'0') + '/' + p[1].padStart(2,'0') + '/' + p[2];
   }
   return s;
 }
@@ -505,107 +522,100 @@ function fmtHora(v) {
   return String(v).trim().substring(0, 5);
 }
 function horaAMin(h) {
-  const s = String(h).trim().substring(0, 5).split(':');
+  var s = String(h).trim().substring(0, 5).split(':');
   if (s.length < 2) return 0;
   return parseInt(s[0]) * 60 + parseInt(s[1]);
 }
 function diferenciaMin(e, s) {
-  let em = horaAMin(e), sm = horaAMin(s);
+  var em = horaAMin(e), sm = horaAMin(s);
   if (sm < em) sm += 24 * 60;
   return sm - em;
 }
 function diaLaboral(fecha, hora) {
   if (horaAMin(hora) < 120) {
-    const p = String(fecha).trim().split('/');
+    var p = String(fecha).trim().split('/');
     if (p.length === 3) {
-      const d = new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
+      var d = new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
       d.setDate(d.getDate() - 1);
-      return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+      return d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear();
     }
   }
   return String(fecha).trim();
 }
 function minATexto(m) {
   if (!m || m <= 0) return '0h 0min';
-  return `${Math.floor(m/60)}h ${m%60}min`;
+  return Math.floor(m/60) + 'h ' + (m%60) + 'min';
 }
 function calcTiempo(fichaje) {
   try {
-    const f = fmtFecha(fichaje.fecha), h = fmtHora(fichaje.hora);
+    var f = fmtFecha(fichaje.fecha), h = fmtHora(fichaje.hora);
     if (!f || !h || f === '—' || h === '—') return null;
-    const fp = f.split('/'), hp = h.split(':');
+    var fp = f.split('/'), hp = h.split(':');
     if (fp.length !== 3 || hp.length < 2) return null;
-    const dt = new Date(parseInt(fp[2]), parseInt(fp[1])-1, parseInt(fp[0]), parseInt(hp[0]), parseInt(hp[1]), 0);
-    const diff = Date.now() - dt.getTime();
+    var dt = new Date(parseInt(fp[2]), parseInt(fp[1])-1, parseInt(fp[0]), parseInt(hp[0]), parseInt(hp[1]), 0);
+    var diff = Date.now() - dt.getTime();
     if (diff < 0) return null;
-    const totalMin = Math.floor(diff / 60000);
-    return `${Math.floor(totalMin/60)}h ${totalMin%60}min`;
-  } catch { return null; }
+    var totalMin = Math.floor(diff / 60000);
+    return Math.floor(totalMin/60) + 'h ' + (totalMin%60) + 'min';
+  } catch(e) { return null; }
 }
 
-async function apiGet(params) {
-  const res = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params).toString(), { redirect: 'follow' });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
-}
-async function apiPost(data) {
-  const res = await fetch(SCRIPT_URL + '?action=addFichaje', {
-    method: 'POST', redirect: 'follow',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
-}
-
+// ══════════════════════════════════════════════════════════
+// CARGA DE DATOS
+// ══════════════════════════════════════════════════════════
 async function cargarEmpleados() {
-  const data = await apiGet({ action: 'getEmpleados' });
-  state.empleados = data
-    .map(r => ({
-      nombre: r[0] || '',
-      nss: r[1] || '',
-      dni: r[2] || '',
-      pin: (r[3] || '').toString().trim()
-    }))
-    .filter(e => e.nombre);
+  var data = await apiGetJSONP({ action: 'getEmpleados' });
+  // El script puede devolver el array directamente o envuelto en {data:[...]}
+  var rows = Array.isArray(data) ? data : (data.data || []);
+  state.empleados = rows
+    .map(function(r) {
+      return {
+        nombre: r[0] || '',
+        nss:    r[1] || '',
+        dni:    r[2] || '',
+        pin:    String(r[3] || '').trim()
+      };
+    })
+    .filter(function(e) { return e.nombre; });
 }
 
 function renderEmpleados(fichajesMap) {
-  const g = document.getElementById('emp-grid');
+  var g = document.getElementById('emp-grid');
   if (!g) return;
-  g.innerHTML = state.empleados.map((emp, i) => {
-    const fichs = fichajesMap ? (fichajesMap[emp.nombre] || []) : null;
-    const ultimo = fichs ? fichs[fichs.length - 1] : null;
-    const working = ultimo && ultimo.tipo === 'ENTRADA';
-    const hasData = fichs !== null;
-    return `<div class="emp-card" onclick="seleccionarEmpleado(${i})" style="animation-delay:${i*0.04}s">
-      <div>
-        <div class="emp-name">${primerNombre(emp.nombre)}</div>
-        ${hasData
-          ? `<span class="emp-status ${working ? 'status-working' : 'status-resting'}">
-               <span class="status-dot ${working ? 'pulse' : ''}"></span>
-               ${working ? 'Trabajando' : 'Descansando'}
-             </span>`
-          : `<span class="emp-status status-resting" style="opacity:0.4">—</span>`
-        }
-      </div>
-    </div>`;
+  g.innerHTML = state.empleados.map(function(emp, i) {
+    var fichs   = fichajesMap ? (fichajesMap[emp.nombre] || []) : null;
+    var ultimo  = fichs ? fichs[fichs.length - 1] : null;
+    var working = ultimo && ultimo.tipo === 'ENTRADA';
+    var hasData = fichs !== null;
+    return '<div class="emp-card" onclick="seleccionarEmpleado(' + i + ')" style="animation-delay:' + (i*0.04) + 's">'
+      + '<div>'
+      + '<div class="emp-name">' + primerNombre(emp.nombre) + '</div>'
+      + (hasData
+          ? '<span class="emp-status ' + (working ? 'status-working' : 'status-resting') + '">'
+            + '<span class="status-dot ' + (working ? 'pulse' : '') + '"></span>'
+            + (working ? 'Trabajando' : 'Descansando')
+            + '</span>'
+          : '<span class="emp-status status-resting" style="opacity:0.4">—</span>')
+      + '</div></div>';
   }).join('');
 }
 
-let syncFichajesMap = null;
+var syncFichajesMap = null;
 
 async function syncSheets() {
-  const btn = document.getElementById('sync-btn');
+  var btn = document.getElementById('sync-btn');
   if (btn) btn.classList.add('spinning');
   try {
     await cargarEmpleados();
-    const results = await Promise.all(
-      state.empleados.map(async e => {
+    var results = await Promise.all(
+      state.empleados.map(async function(e) {
         try {
-          const data = await apiGet({ action: 'getFichajes', nombre: e.nombre });
-          return [e.nombre, Array.isArray(data) ? data.map(r => ({ fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' })) : []];
-        } catch { return [e.nombre, []]; }
+          var data = await apiGetJSONP({ action: 'getFichajes', nombre: e.nombre });
+          var rows = Array.isArray(data) ? data : (data.data || []);
+          return [e.nombre, rows.map(function(r) {
+            return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
+          })];
+        } catch(e) { return [e.nombre, []]; }
       })
     );
     syncFichajesMap = Object.fromEntries(results);
@@ -614,6 +624,9 @@ async function syncSheets() {
   finally { if (btn) btn.classList.remove('spinning'); }
 }
 
+// ══════════════════════════════════════════════════════════
+// SELECCIÓN DE EMPLEADO / PIN
+// ══════════════════════════════════════════════════════════
 function seleccionarEmpleado(i) {
   state.empleadoActual = state.empleados[i];
   state.pinIngresado = '';
@@ -630,27 +643,32 @@ function addPin(n) {
   if (state.pinIngresado.length === 4) setTimeout(verificarPin, 130);
 }
 function deletePin() { state.pinIngresado = state.pinIngresado.slice(0,-1); actualizarPinDots(); }
-function clearPin() { state.pinIngresado = ''; actualizarPinDots(); }
+function clearPin()  { state.pinIngresado = ''; actualizarPinDots(); }
+
 function actualizarPinDots() {
-  for (let i = 0; i < 4; i++) {
-    const d = document.getElementById('p' + i);
+  for (var i = 0; i < 4; i++) {
+    var d = document.getElementById('p' + i);
     if (d) d.className = 'pin-dot' + (i < state.pinIngresado.length ? ' filled' : '');
   }
 }
+
 function verificarPin() {
   if (state.pinIngresado === (state.empleadoActual.pin || '').toString().trim()) {
     mostrarPantallaFichaje();
   } else {
     document.getElementById('pin-error').textContent = 'PIN incorrecto. Inténtalo de nuevo.';
-    for (let i = 0; i < 4; i++) {
-      const d = document.getElementById('p' + i);
+    for (var i = 0; i < 4; i++) {
+      var d = document.getElementById('p' + i);
       if (d) d.className = 'pin-dot error';
     }
     state.pinIngresado = '';
-    setTimeout(() => { actualizarPinDots(); document.getElementById('pin-error').textContent = ''; }, 800);
+    setTimeout(function() { actualizarPinDots(); document.getElementById('pin-error').textContent = ''; }, 800);
   }
 }
 
+// ══════════════════════════════════════════════════════════
+// PANTALLA FICHAJE
+// ══════════════════════════════════════════════════════════
 async function mostrarPantallaFichaje() {
   showScreen('screen-fichar');
   if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
@@ -658,13 +676,16 @@ async function mostrarPantallaFichaje() {
   document.getElementById('fichar-loading').style.display = 'flex';
   document.getElementById('fichar-content').style.display = 'none';
 
-  const emp = state.empleadoActual;
+  var emp = state.empleadoActual;
   document.getElementById('fich-nombre').textContent = primerNombre(emp.nombre);
 
-  let fichs = [];
+  var fichs = [];
   try {
-    const data = await apiGet({ action: 'getFichajes', nombre: emp.nombre });
-    fichs = Array.isArray(data) ? data.map(r => ({ fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' })) : [];
+    var data = await apiGetJSONP({ action: 'getFichajes', nombre: emp.nombre });
+    var rows = Array.isArray(data) ? data : (data.data || []);
+    fichs = rows.map(function(r) {
+      return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
+    });
   } catch(e) {
     console.warn('Error cargando fichajes:', e);
   }
@@ -674,94 +695,105 @@ async function mostrarPantallaFichaje() {
   document.getElementById('fichar-loading').style.display = 'none';
   document.getElementById('fichar-content').style.display = 'flex';
 
-  const ultimo = fichs[fichs.length - 1];
-  const ultimoTipo = ultimo ? ultimo.tipo : null;
-  const wrap = document.getElementById('fich-entrada-wrap');
-  const btnE = document.getElementById('btn-entrada');
-  const btnS = document.getElementById('btn-salida');
+  var ultimo    = fichs[fichs.length - 1];
+  var ultimoTipo = ultimo ? ultimo.tipo : null;
+  var wrap = document.getElementById('fich-entrada-wrap');
+  var btnE = document.getElementById('btn-entrada');
+  var btnS = document.getElementById('btn-salida');
 
   if (ultimoTipo === 'ENTRADA') {
     wrap.style.display = 'grid';
-    document.getElementById('fich-entrada-val').textContent = `${fmtFecha(ultimo.fecha)} · ${fmtHora(ultimo.hora)}`;
+    document.getElementById('fich-entrada-val').textContent = fmtFecha(ultimo.fecha) + ' · ' + fmtHora(ultimo.hora);
     function tick() {
-      const t = calcTiempo(ultimo);
+      var t = calcTiempo(ultimo);
       document.getElementById('fich-tiempo-val').textContent = t || '—';
     }
     tick();
     state.tiempoInterval = setInterval(tick, 30000);
     btnE.className = 'btn-fichar btn-disabled'; btnE.onclick = null;
-    btnS.className = 'btn-fichar btn-salida'; btnS.onclick = () => registrarFichaje('SALIDA');
+    btnS.className = 'btn-fichar btn-salida';   btnS.onclick = function() { registrarFichaje('SALIDA'); };
   } else {
     wrap.style.display = 'none';
-    btnE.className = 'btn-fichar btn-entrada'; btnE.onclick = () => registrarFichaje('ENTRADA');
+    btnE.className = 'btn-fichar btn-entrada'; btnE.onclick = function() { registrarFichaje('ENTRADA'); };
     btnS.className = 'btn-fichar btn-disabled'; btnS.onclick = null;
   }
 
-  const ultimos4 = fichs.slice(-4).reverse();
+  var ultimos4 = fichs.slice(-4).reverse();
   document.getElementById('fich-history').innerHTML = ultimos4.length
-    ? ultimos4.map(f => `<div class="hist-row">
-        <span class="hist-type ${f.tipo === 'ENTRADA' ? 'e' : 's'}">${f.tipo}</span>
-        <span class="hist-fecha">${fmtFecha(f.fecha)}</span>
-        <span class="hist-hora">${fmtHora(f.hora)}</span>
-      </div>`).join('')
+    ? ultimos4.map(function(f) {
+        return '<div class="hist-row">'
+          + '<span class="hist-type ' + (f.tipo === 'ENTRADA' ? 'e' : 's') + '">' + f.tipo + '</span>'
+          + '<span class="hist-fecha">' + fmtFecha(f.fecha) + '</span>'
+          + '<span class="hist-hora">' + fmtHora(f.hora) + '</span>'
+          + '</div>';
+      }).join('')
     : '<div class="hist-row" style="color:var(--text2);">Sin fichajes anteriores</div>';
 
+  // Cámara
   try {
     state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
     document.getElementById('video').srcObject = state.stream;
     document.getElementById('cam-off').style.display = 'none';
-  } catch {
+  } catch(e) {
     document.getElementById('cam-off').style.display = 'flex';
   }
 }
 
 function cancelarFichaje() {
   if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
-  if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; }
+  if (state.stream) { state.stream.getTracks().forEach(function(t) { t.stop(); }); state.stream = null; }
   showScreen('screen-main');
 }
 
 function capturarFoto() {
   try {
-    const v = document.getElementById('video'), c = document.getElementById('canvas');
+    var v = document.getElementById('video'), c = document.getElementById('canvas');
     c.width = 320; c.height = 240;
     c.getContext('2d').drawImage(v, 0, 0, 320, 240);
     return c.toDataURL('image/jpeg', 0.65);
-  } catch { return ''; }
+  } catch(e) { return ''; }
 }
 
+// ══════════════════════════════════════════════════════════
+// REGISTRAR FICHAJE
+// ══════════════════════════════════════════════════════════
 async function registrarFichaje(tipo) {
   if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
-  const emp = state.empleadoActual;
-  const foto = capturarFoto();
-  if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; }
+  var emp  = state.empleadoActual;
+  var foto = capturarFoto();
+  if (state.stream) { state.stream.getTracks().forEach(function(t) { t.stop(); }); state.stream = null; }
 
-  const ahora = new Date();
-  const fecha = `${String(ahora.getDate()).padStart(2,'0')}/${String(ahora.getMonth()+1).padStart(2,'0')}/${ahora.getFullYear()}`;
-  const hora = `${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
+  var ahora = new Date();
+  var fecha = String(ahora.getDate()).padStart(2,'0') + '/'
+            + String(ahora.getMonth()+1).padStart(2,'0') + '/'
+            + ahora.getFullYear();
+  var hora  = String(ahora.getHours()).padStart(2,'0') + ':' + String(ahora.getMinutes()).padStart(2,'0');
 
-  let tiempoTexto = null, horasTrabajadas = 0;
-  let horasTurnoTexto = '', horasDiaTexto = '';
+  var tiempoTexto = null, horasTrabajadas = 0;
+  var horasTurnoTexto = '', horasDiaTexto = '';
 
-  const fichs = syncFichajesMap && syncFichajesMap[emp.nombre]
+  var fichs = syncFichajesMap && syncFichajesMap[emp.nombre]
     ? syncFichajesMap[emp.nombre]
     : [];
 
   if (tipo === 'SALIDA') {
-    const ultimaEntrada = [...fichs].reverse().find(f => f.tipo === 'ENTRADA');
-    let minTurno = 0;
+    var ultimaEntrada = null;
+    for (var k = fichs.length - 1; k >= 0; k--) {
+      if (fichs[k].tipo === 'ENTRADA') { ultimaEntrada = fichs[k]; break; }
+    }
+    var minTurno = 0;
     if (ultimaEntrada) {
       minTurno = diferenciaMin(ultimaEntrada.hora, hora);
-      const h = Math.floor(minTurno / 60), m = minTurno % 60;
-      tiempoTexto = `Has trabajado ${h} horas y ${m} minutos`;
+      var h = Math.floor(minTurno / 60), m = minTurno % 60;
+      tiempoTexto = 'Has trabajado ' + h + ' horas y ' + m + ' minutos';
       horasTrabajadas = h;
       horasTurnoTexto = minATexto(minTurno);
     }
-    const diaActual = diaLaboral(fecha, hora);
-    let minDia = minTurno, i = fichs.length - 1;
+    var diaActual = diaLaboral(fecha, hora);
+    var minDia = minTurno, i = fichs.length - 1;
     while (i >= 0) {
       if (fichs[i].tipo === 'SALIDA') {
-        let j = i - 1;
+        var j = i - 1;
         while (j >= 0 && fichs[j].tipo !== 'ENTRADA') j--;
         if (j >= 0 && diaLaboral(fichs[j].fecha, fichs[j].hora) === diaActual) {
           minDia += diferenciaMin(fichs[j].hora, fichs[i].hora); i = j - 1;
@@ -771,75 +803,95 @@ async function registrarFichaje(tipo) {
     horasDiaTexto = minATexto(minDia);
   }
 
+  // Actualizar mapa local inmediatamente
   if (syncFichajesMap) {
     if (!syncFichajesMap[emp.nombre]) syncFichajesMap[emp.nombre] = [];
-    syncFichajesMap[emp.nombre].push({ fecha, tipo, hora, foto: foto ? 'si' : '' });
+    syncFichajesMap[emp.nombre].push({ fecha: fecha, tipo: tipo, hora: hora, foto: foto ? 'si' : '' });
   }
   renderEmpleados(syncFichajesMap);
 
-  apiPost({ nombre: emp.nombre, fecha, tipo, hora, foto: foto ? 'si' : '', horasTurno: horasTurnoTexto, horasDia: horasDiaTexto })
-    .catch(e => console.warn('Error guardando fichaje:', e));
+  // Enviar al Apps Script (sin esperar respuesta — fire & forget)
+  apiPostForm({
+    action:       'addFichaje',
+    nombre:       emp.nombre,
+    fecha:        fecha,
+    tipo:         tipo,
+    hora:         hora,
+    foto:         foto ? 'si' : '',
+    horasTurno:   horasTurnoTexto,
+    horasDia:     horasDiaTexto
+  }).catch(function(e) { console.warn('Error guardando fichaje:', e); });
 
   mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas);
 }
 
+// ══════════════════════════════════════════════════════════
+// PANTALLA ÉXITO
+// ══════════════════════════════════════════════════════════
 function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
-  const icon = document.getElementById('success-icon');
+  var icon = document.getElementById('success-icon');
   icon.className = 'success-icon ' + (tipo === 'ENTRADA' ? 'icon-entrada' : 'icon-salida');
   icon.textContent = tipo === 'ENTRADA' ? '↗' : '↙';
-  document.getElementById('success-name').textContent = primerNombre(state.empleadoActual.nombre);
-  document.getElementById('success-hora').textContent = tipo === 'ENTRADA' ? `Entrada · ${hora}` : `Salida · ${hora}`;
 
-  const tEl = document.getElementById('success-tiempo');
+  document.getElementById('success-name').textContent = primerNombre(state.empleadoActual.nombre);
+  document.getElementById('success-hora').textContent = tipo === 'ENTRADA' ? 'Entrada · ' + hora : 'Salida · ' + hora;
+
+  var tEl = document.getElementById('success-tiempo');
   if (tiempoTexto && tipo === 'SALIDA') { tEl.textContent = tiempoTexto; tEl.style.display = 'block'; }
   else { tEl.style.display = 'none'; }
 
   document.getElementById('aviso-ojo').style.display = (tipo === 'SALIDA' && horasTrabajadas >= 11) ? 'block' : 'none';
 
-  const img = document.getElementById('success-photo');
+  var img = document.getElementById('success-photo');
   if (foto) { img.src = foto; img.style.display = 'block'; }
   else { img.style.display = 'none'; }
 
   showScreen('screen-success');
 
-  const bar = document.getElementById('countdown-bar');
+  var bar = document.getElementById('countdown-bar');
   if (bar) {
-    bar.style.transition = 'none';
-    bar.style.width = '100%';
-    setTimeout(() => {
-      bar.style.transition = 'width 5s linear';
-      bar.style.width = '0%';
-    }, 50);
+    bar.style.transition = 'none'; bar.style.width = '100%';
+    setTimeout(function() { bar.style.transition = 'width 5s linear'; bar.style.width = '0%'; }, 50);
   }
 
   if (state.countdownTimeout) clearTimeout(state.countdownTimeout);
-  state.countdownTimeout = setTimeout(() => showScreen('screen-main'), 5000);
+  state.countdownTimeout = setTimeout(function() { showScreen('screen-main'); }, 5000);
 }
 
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
 async function init() {
   try {
     await cargarEmpleados();
     renderEmpleados(null);
     showScreen('screen-main');
-    const results = await Promise.all(
-      state.empleados.map(async e => {
+
+    // Cargar estados en paralelo
+    var results = await Promise.all(
+      state.empleados.map(async function(e) {
         try {
-          const data = await apiGet({ action: 'getFichajes', nombre: e.nombre });
-          return [e.nombre, Array.isArray(data)
-            ? data.map(r => ({ fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' }))
-            : []];
-        } catch { return [e.nombre, []]; }
+          var data = await apiGetJSONP({ action: 'getFichajes', nombre: e.nombre });
+          var rows = Array.isArray(data) ? data : (data.data || []);
+          return [e.nombre, rows.map(function(r) {
+            return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
+          })];
+        } catch(err) { return [e.nombre, []]; }
       })
     );
     syncFichajesMap = Object.fromEntries(results);
     renderEmpleados(syncFichajesMap);
+
   } catch(e) {
-    document.getElementById('screen-loading').innerHTML = `
-      <div class="error-wrap">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8b2131" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <div class="error-msg">No se pudo conectar. Comprueba tu conexión.</div>
-        <button class="retry-btn" onclick="init()">↻ Reintentar</button>
-      </div>`;
+    console.error('Error de inicio:', e);
+    document.getElementById('screen-loading').innerHTML =
+      '<div class="loading-wrap">'
+      + '<div class="error-wrap">'
+      + '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8b2131" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+      + '<div class="error-msg">No se pudo conectar con el Apps Script.<br><br>'
+      + '<small style="color:var(--text2)">Asegúrate de que el script está publicado como app web con acceso "Cualquier persona" y que la función <strong>doGet</strong> acepta el parámetro <strong>callback</strong> (JSONP).</small></div>'
+      + '<button class="retry-btn" onclick="init()">↻ Reintentar</button>'
+      + '</div></div>';
     document.getElementById('screen-loading').classList.add('active');
   }
 }
