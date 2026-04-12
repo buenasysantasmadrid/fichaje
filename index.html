@@ -414,8 +414,6 @@ const state = {
 // ══════════════════════════════════════════════════════════
 // API
 // ══════════════════════════════════════════════════════════
-
-// GET via JSONP — evita CORS en peticiones de lectura
 function apiGetJSONP(params, timeoutMs) {
   timeoutMs = timeoutMs || 15000;
   return new Promise(function(resolve, reject) {
@@ -448,8 +446,7 @@ function apiGetJSONP(params, timeoutMs) {
   });
 }
 
-// POST via fetch con mode:'no-cors' — fire & forget, no leemos la respuesta
-// pero el dato SÍ llega al Apps Script (igual que antes)
+// CAMBIO: ya no enviamos horasTurno ni horasDia — el sheet los calcula solo
 function apiPostForm(data) {
   return fetch(SCRIPT_URL, {
     method: 'POST',
@@ -506,23 +503,6 @@ function diferenciaMin(e, s) {
   return sm - em;
 }
 
-function diaLaboral(fecha, hora) {
-  if (horaAMin(hora) < 120) {
-    var p = String(fecha).trim().split('/');
-    if (p.length === 3) {
-      var d = new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
-      d.setDate(d.getDate() - 1);
-      return d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear();
-    }
-  }
-  return String(fecha).trim();
-}
-
-function minATexto(m) {
-  if (!m || m <= 0) return '0h 0min';
-  return Math.floor(m/60) + 'h ' + (m%60) + 'min';
-}
-
 function calcTiempo(fichaje) {
   try {
     var f = fmtFecha(fichaje.fecha), h = fmtHora(fichaje.hora);
@@ -560,7 +540,8 @@ function renderEmpleados(fichajesMap) {
   if (!g) return;
   g.innerHTML = state.empleados.map(function(emp, i) {
     var fichs   = fichajesMap ? (fichajesMap[emp.nombre] || []) : null;
-    var ultimo  = fichs ? fichs[fichs.length - 1] : null;
+    // El array ya viene ordenado reciente→antiguo; el primero es el último fichaje
+    var ultimo  = fichs ? fichs[0] : null;
     var working = ultimo && ultimo.tipo === 'ENTRADA';
     var hasData = fichs !== null;
     return '<div class="emp-card" onclick="seleccionarEmpleado(' + i + ')" style="animation-delay:' + (i*0.04) + 's">'
@@ -671,7 +652,8 @@ async function mostrarPantallaFichaje() {
   document.getElementById('fichar-loading').style.display = 'none';
   document.getElementById('fichar-content').style.display = 'flex';
 
-  var ultimo    = fichs[fichs.length - 1];
+  // El array viene reciente→antiguo; el primero es el último fichaje
+  var ultimo    = fichs[0];
   var ultimoTipo = ultimo ? ultimo.tipo : null;
   var wrap = document.getElementById('fich-entrada-wrap');
   var btnE = document.getElementById('btn-entrada');
@@ -694,9 +676,10 @@ async function mostrarPantallaFichaje() {
     btnS.className = 'btn-fichar btn-disabled'; btnS.onclick = null;
   }
 
-  var ultimos4 = fichs.slice(-4).reverse();
-  document.getElementById('fich-history').innerHTML = ultimos4.length
-    ? ultimos4.map(function(f) {
+  // CAMBIO: el array ya viene reciente→antiguo, mostramos los primeros 4
+  var primeros4 = fichs.slice(0, 4);
+  document.getElementById('fich-history').innerHTML = primeros4.length
+    ? primeros4.map(function(f) {
         return '<div class="hist-row">'
           + '<span class="hist-type ' + (f.tipo === 'ENTRADA' ? 'e' : 's') + '">' + f.tipo + '</span>'
           + '<span class="hist-fecha">' + fmtFecha(f.fecha) + '</span>'
@@ -746,56 +729,40 @@ async function registrarFichaje(tipo) {
   var hora  = String(ahora.getHours()).padStart(2,'0') + ':' + String(ahora.getMinutes()).padStart(2,'0');
 
   var tiempoTexto = null, horasTrabajadas = 0;
-  var horasTurnoTexto = '', horasDiaTexto = '';
 
   var fichs = syncFichajesMap && syncFichajesMap[emp.nombre]
     ? syncFichajesMap[emp.nombre]
     : [];
 
   if (tipo === 'SALIDA') {
+    // El array viene reciente→antiguo; buscamos la entrada más reciente
     var ultimaEntrada = null;
-    for (var k = fichs.length - 1; k >= 0; k--) {
+    for (var k = 0; k < fichs.length; k++) {
       if (fichs[k].tipo === 'ENTRADA') { ultimaEntrada = fichs[k]; break; }
     }
-    var minTurno = 0;
     if (ultimaEntrada) {
-      minTurno = diferenciaMin(ultimaEntrada.hora, hora);
+      var minTurno = diferenciaMin(ultimaEntrada.hora, hora);
       var h = Math.floor(minTurno / 60), m = minTurno % 60;
       tiempoTexto = 'Has trabajado ' + h + ' horas y ' + m + ' minutos';
       horasTrabajadas = h;
-      horasTurnoTexto = minATexto(minTurno);
     }
-    var diaActual = diaLaboral(fecha, hora);
-    var minDia = minTurno, i = fichs.length - 1;
-    while (i >= 0) {
-      if (fichs[i].tipo === 'SALIDA') {
-        var j = i - 1;
-        while (j >= 0 && fichs[j].tipo !== 'ENTRADA') j--;
-        if (j >= 0 && diaLaboral(fichs[j].fecha, fichs[j].hora) === diaActual) {
-          minDia += diferenciaMin(fichs[j].hora, fichs[i].hora); i = j - 1;
-        } else break;
-      } else i--;
-    }
-    horasDiaTexto = minATexto(minDia);
   }
 
-  // Actualizar mapa local inmediatamente
+  // Actualizar mapa local: insertar al principio (más reciente primero)
   if (syncFichajesMap) {
     if (!syncFichajesMap[emp.nombre]) syncFichajesMap[emp.nombre] = [];
-    syncFichajesMap[emp.nombre].push({ fecha: fecha, tipo: tipo, hora: hora, foto: foto ? 'si' : '' });
+    syncFichajesMap[emp.nombre].unshift({ fecha: fecha, tipo: tipo, hora: hora, foto: foto ? 'si' : '' });
   }
   renderEmpleados(syncFichajesMap);
 
-  // Enviar al Apps Script — fire & forget con fetch no-cors
+  // CAMBIO: solo enviamos los campos necesarios, sin horasTurno ni horasDia
   apiPostForm({
-    action:       'addFichaje',
-    nombre:       emp.nombre,
-    fecha:        fecha,
-    tipo:         tipo,
-    hora:         hora,
-    foto:         foto ? 'si' : '',
-    horasTurno:   horasTurnoTexto,
-    horasDia:     horasDiaTexto
+    action: 'addFichaje',
+    nombre: emp.nombre,
+    fecha:  fecha,
+    tipo:   tipo,
+    hora:   hora,
+    foto:   foto ? 'si' : ''
   }).catch(function(e) { console.warn('Error guardando fichaje:', e); });
 
   mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas);
