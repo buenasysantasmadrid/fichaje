@@ -419,8 +419,7 @@ const state = {
 // API
 // ══════════════════════════════════════════════════════════
 function apiGetJSONP(params, timeoutMs) {
-  // aumentado a 40s igual que app fichajes
-  timeoutMs = timeoutMs || 40000;
+  timeoutMs = timeoutMs || 15000;
   return new Promise(function(resolve, reject) {
     var cbName = '_gs_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
     var script = document.createElement('script');
@@ -449,22 +448,6 @@ function apiGetJSONP(params, timeoutMs) {
     script.onerror = function() { cleanup(); reject(new Error('Error de red')); };
     document.head.appendChild(script);
   });
-}
-
-function apiGetJSONPWithRetry(params, timeoutMs, retries) {
-  retries = (retries !== undefined) ? retries : 4;
-  timeoutMs = timeoutMs || 40000;
-  var lastErr;
-  function attempt(n) {
-    return apiGetJSONP(params, timeoutMs).catch(function(e) {
-      lastErr = e;
-      if (n < retries) {
-        return new Promise(function(r) { setTimeout(r, (n+1)*1500); }).then(function() { return attempt(n+1); });
-      }
-      throw lastErr;
-    });
-  }
-  return attempt(0);
 }
 
 function apiPostForm(data) {
@@ -541,7 +524,7 @@ function calcTiempo(fichaje) {
 // CARGA DE DATOS
 // ══════════════════════════════════════════════════════════
 async function cargarEmpleados() {
-  var data = await apiGetJSONPWithRetry({ action: 'getEmpleados' }, 40000, 4);
+  var data = await apiGetJSONP({ action: 'getEmpleados' });
   var rows = Array.isArray(data) ? data : (data.data || []);
   state.empleados = rows
     .map(function(r) {
@@ -581,15 +564,23 @@ var syncFichajesMap = null;
 async function syncSheets() {
   var btn = document.getElementById('sync-btn');
   if (btn) btn.classList.add('spinning');
-
-  // Carga de empleados con callback directo (no bloquea la UI)
-  var script = document.createElement('script');
-  script.src = SCRIPT_URL + '?action=getEmpleados&callback=procesarEmpleados';
-  script.onerror = function() {
-    console.warn('Error cargando empleados');
-    if (btn) btn.classList.remove('spinning');
-  };
-  document.body.appendChild(script);
+  try {
+    await cargarEmpleados();
+    var results = await Promise.all(
+      state.empleados.map(async function(e) {
+        try {
+          var data = await apiGetJSONP({ action: 'getFichajes', nombre: e.nombre });
+          var rows = Array.isArray(data) ? data : (data.data || []);
+          return [e.nombre, rows.map(function(r) {
+            return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
+          })];
+        } catch(err) { return [e.nombre, []]; }
+      })
+    );
+    syncFichajesMap = Object.fromEntries(results);
+    renderEmpleados(syncFichajesMap);
+  } catch(e) { console.warn('Sync error:', e); }
+  finally { if (btn) btn.classList.remove('spinning'); }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -649,7 +640,7 @@ async function mostrarPantallaFichaje() {
 
   var fichs = [];
   try {
-    var data = await apiGetJSONPWithRetry({ action: 'getFichajes', nombre: emp.nombre }, 40000, 4);
+    var data = await apiGetJSONP({ action: 'getFichajes', nombre: emp.nombre });
     var rows = Array.isArray(data) ? data : (data.data || []);
     fichs = rows.map(function(r) {
       return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
@@ -810,25 +801,38 @@ function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
 // ══════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════
-function procesarEmpleados(data) {
-  var rows = Array.isArray(data) ? data : (data.data || []);
-  state.empleados = rows.map(function(r) {
-    return {
-      nombre: r[0] || '',
-      nss:    r[1] || '',
-      dni:    r[2] || '',
-      pin:    String(r[3] || '').trim()
-    };
-  }).filter(function(e) { return e.nombre; });
-  renderEmpleados(syncFichajesMap);
-  var btn = document.getElementById('sync-btn');
-  if (btn) btn.classList.remove('spinning');
-}
+async function init() {
+  try {
+    await cargarEmpleados();
+    renderEmpleados(null);
+    showScreen('screen-main');
 
-function init() {
-  updateDate();
-  showScreen('screen-main');
-  syncSheets();
+    var results = await Promise.all(
+      state.empleados.map(async function(e) {
+        try {
+          var data = await apiGetJSONP({ action: 'getFichajes', nombre: e.nombre });
+          var rows = Array.isArray(data) ? data : (data.data || []);
+          return [e.nombre, rows.map(function(r) {
+            return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
+          })];
+        } catch(err) { return [e.nombre, []]; }
+      })
+    );
+    syncFichajesMap = Object.fromEntries(results);
+    renderEmpleados(syncFichajesMap);
+
+  } catch(e) {
+    console.error('Error de inicio:', e);
+    document.getElementById('screen-loading').innerHTML =
+      '<div class="loading-wrap">'
+      + '<div class="error-wrap">'
+      + '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8b2131" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+      + '<div class="error-msg">No se pudo conectar con el Apps Script.<br><br>'
+      + '<small style="color:var(--text2)">Asegúrate de que el script está publicado como app web con acceso "Cualquier persona" y que la función <strong>doGet</strong> acepta el parámetro <strong>callback</strong> (JSONP).</small></div>'
+      + '<button class="retry-btn" onclick="init()">↻ Reintentar</button>'
+      + '</div></div>';
+    document.getElementById('screen-loading').classList.add('active');
+  }
 }
 
 init();
