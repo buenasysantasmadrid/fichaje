@@ -1,0 +1,22 @@
+{
+  "name": "Fichaje · Buenas y Santas",
+  "short_name": "Fichaje",
+  "description": "Control de fichajes Buenas y Santas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f5f0",
+  "theme_color": "#2d6a35",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "logo_buenasysantas.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "logo_buenasysantas.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
