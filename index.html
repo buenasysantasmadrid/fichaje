@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fichaje · Buenas y Santas</title>
 <link rel="icon" href="logo_buenasysantas.jpg" type="image/jpeg">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Fichaje">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -446,7 +450,6 @@ function apiGetJSONP(params, timeoutMs) {
   });
 }
 
-// CAMBIO: ya no enviamos horasTurno ni horasDia — el sheet los calcula solo
 function apiPostForm(data) {
   return fetch(SCRIPT_URL, {
     method: 'POST',
@@ -540,7 +543,6 @@ function renderEmpleados(fichajesMap) {
   if (!g) return;
   g.innerHTML = state.empleados.map(function(emp, i) {
     var fichs   = fichajesMap ? (fichajesMap[emp.nombre] || []) : null;
-    // El array ya viene ordenado reciente→antiguo; el primero es el último fichaje
     var ultimo  = fichs ? fichs[0] : null;
     var working = ultimo && ultimo.tipo === 'ENTRADA';
     var hasData = fichs !== null;
@@ -652,7 +654,6 @@ async function mostrarPantallaFichaje() {
   document.getElementById('fichar-loading').style.display = 'none';
   document.getElementById('fichar-content').style.display = 'flex';
 
-  // El array viene reciente→antiguo; el primero es el último fichaje
   var ultimo    = fichs[0];
   var ultimoTipo = ultimo ? ultimo.tipo : null;
   var wrap = document.getElementById('fich-entrada-wrap');
@@ -676,7 +677,6 @@ async function mostrarPantallaFichaje() {
     btnS.className = 'btn-fichar btn-disabled'; btnS.onclick = null;
   }
 
-  // CAMBIO: el array ya viene reciente→antiguo, mostramos los primeros 4
   var primeros4 = fichs.slice(0, 4);
   document.getElementById('fich-history').innerHTML = primeros4.length
     ? primeros4.map(function(f) {
@@ -735,7 +735,6 @@ async function registrarFichaje(tipo) {
     : [];
 
   if (tipo === 'SALIDA') {
-    // El array viene reciente→antiguo; buscamos la entrada más reciente
     var ultimaEntrada = null;
     for (var k = 0; k < fichs.length; k++) {
       if (fichs[k].tipo === 'ENTRADA') { ultimaEntrada = fichs[k]; break; }
@@ -748,14 +747,12 @@ async function registrarFichaje(tipo) {
     }
   }
 
-  // Actualizar mapa local: insertar al principio (más reciente primero)
   if (syncFichajesMap) {
     if (!syncFichajesMap[emp.nombre]) syncFichajesMap[emp.nombre] = [];
     syncFichajesMap[emp.nombre].unshift({ fecha: fecha, tipo: tipo, hora: hora, foto: foto ? 'si' : '' });
   }
   renderEmpleados(syncFichajesMap);
 
-  // CAMBIO: solo enviamos los campos necesarios, sin horasTurno ni horasDia
   apiPostForm({
     action: 'addFichaje',
     nombre: emp.nombre,
@@ -839,6 +836,13 @@ async function init() {
 }
 
 init();
+
+// ══════════════════════════════════════════════════════════
+// SERVICE WORKER (PWA)
+// ══════════════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
 </script>
 </body>
 </html>
