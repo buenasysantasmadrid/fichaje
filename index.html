@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fichaje · Buenas y Santas</title>
 <link rel="icon" href="logo_buenasysantas.jpg" type="image/jpeg">
-<link rel="manifest" href="./manifest.json">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Fichaje">
+<meta name="theme-color" content="#2d6a35">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -51,7 +53,6 @@ body {
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
 @keyframes popIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
 
-/* ── LOADING ── */
 .loading-wrap {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 20px;
@@ -65,7 +66,6 @@ body {
 }
 .loading-text { font-size: 13px; color: var(--text2); letter-spacing: 0.5px; }
 
-/* ── HEADER ── */
 .app-header {
   display: flex; align-items: center; gap: 16px;
   margin-bottom: 2rem;
@@ -100,14 +100,12 @@ body {
 .sync-btn:hover { background: var(--surface2); color: var(--text); }
 .sync-btn.spinning svg { animation: spin 0.8s linear infinite; }
 
-/* ── SECTION LABEL ── */
 .section-label {
   font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--text2);
   margin-bottom: 10px;
 }
 
-/* ── EMPLOYEE GRID ── */
 .emp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .emp-card {
   background: var(--surface);
@@ -140,7 +138,6 @@ body {
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .status-dot.pulse { animation: pulse 1.5s ease-in-out infinite; }
 
-/* ── BACK BTN ── */
 .back-btn {
   display: inline-flex; align-items: center; gap: 7px;
   background: none; border: none; padding: 0;
@@ -152,7 +149,6 @@ body {
 .back-btn:hover { color: var(--text); }
 .back-btn svg { width: 14px; height: 14px; }
 
-/* ── PIN SCREEN ── */
 .pin-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; }
 .pin-name-lg {
   font-family: 'Playfair Display', serif;
@@ -187,7 +183,6 @@ body {
 .num-btn.del { font-size: 16px; }
 .num-btn.clr { font-size: 13px; color: var(--text2); }
 
-/* ── FICHAR SCREEN ── */
 .fich-name {
   font-family: 'Playfair Display', serif;
   font-size: 38px; letter-spacing: -1px;
@@ -241,7 +236,6 @@ body {
 .hist-fecha { color: var(--text2); flex: 1; }
 .hist-hora { font-weight: 500; }
 
-/* ── SUCCESS ── */
 .success-wrap {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -263,7 +257,6 @@ body {
 .countdown-bar-wrap { width: 100%; max-width: 240px; height: 3px; background: var(--border); border-radius: 99px; margin-top: 1.5rem; overflow: hidden; }
 .countdown-bar { height: 100%; background: var(--olive); border-radius: 99px; transition: width linear; }
 
-/* ── ERROR ── */
 .error-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; }
 .error-msg { font-size: 14px; color: var(--red); max-width: 280px; line-height: 1.6; }
 .retry-btn { padding: 10px 24px; border-radius: var(--r-sm); background: var(--text); color: white; border: none; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
@@ -272,7 +265,6 @@ body {
 <body>
 <div id="app">
 
-  <!-- LOADING -->
   <div id="screen-loading" class="screen active">
     <div class="loading-wrap">
       <div class="spinner"></div>
@@ -280,7 +272,6 @@ body {
     </div>
   </div>
 
-  <!-- MAIN -->
   <div id="screen-main" class="screen">
     <div class="app-header">
       <div class="logo-wrap">
@@ -300,7 +291,6 @@ body {
     <div class="emp-grid" id="emp-grid"></div>
   </div>
 
-  <!-- PIN -->
   <div id="screen-pin" class="screen">
     <button class="back-btn" onclick="showScreen('screen-main')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -333,7 +323,6 @@ body {
     </div>
   </div>
 
-  <!-- FICHAR -->
   <div id="screen-fichar" class="screen">
     <button class="back-btn" onclick="cancelarFichaje()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -379,7 +368,6 @@ body {
     </div>
   </div>
 
-  <!-- SUCCESS -->
   <div id="screen-success" class="screen">
     <div class="success-wrap">
       <div class="success-icon" id="success-icon">✓</div>
@@ -398,14 +386,8 @@ body {
 <canvas id="canvas" style="display:none;"></canvas>
 
 <script>
-// ══════════════════════════════════════════════════════════
-// CONFIGURACIÓN
-// ══════════════════════════════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypMnnN4c7Wh8FQzFFrE9r_dxH2JlfhvwikBo7-iGks0KFegjEm0XAdWEymNmie4VlU/exec';
 
-// ══════════════════════════════════════════════════════════
-// ESTADO
-// ══════════════════════════════════════════════════════════
 const state = {
   empleados: [],
   empleadoActual: null,
@@ -415,39 +397,42 @@ const state = {
   countdownTimeout: null,
 };
 
-// ══════════════════════════════════════════════════════════
-// API
-// ══════════════════════════════════════════════════════════
 function apiGetJSONP(params, timeoutMs) {
-  timeoutMs = timeoutMs || 15000;
+  timeoutMs = timeoutMs || 40000;
   return new Promise(function(resolve, reject) {
     var cbName = '_gs_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
     var script = document.createElement('script');
-    var timer = setTimeout(function() {
-      cleanup();
-      reject(new Error('Timeout'));
-    }, timeoutMs);
-
+    var timer = setTimeout(function() { cleanup(); reject(new Error('Timeout')); }, timeoutMs);
     function cleanup() {
       clearTimeout(timer);
       delete window[cbName];
       if (script.parentNode) script.parentNode.removeChild(script);
     }
-
-    window[cbName] = function(data) {
-      cleanup();
-      resolve(data);
-    };
-
+    window[cbName] = function(data) { cleanup(); resolve(data); };
     params.callback = cbName;
     var qs = Object.keys(params).map(function(k) {
       return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
     }).join('&');
-
     script.src = SCRIPT_URL + '?' + qs;
     script.onerror = function() { cleanup(); reject(new Error('Error de red')); };
     document.head.appendChild(script);
   });
+}
+
+function apiGetJSONPWithRetry(params, timeoutMs, retries) {
+  retries = (retries !== undefined) ? retries : 4;
+  timeoutMs = timeoutMs || 40000;
+  var lastErr;
+  function attempt(n) {
+    return apiGetJSONP(params, timeoutMs).catch(function(e) {
+      lastErr = e;
+      if (n < retries) {
+        return new Promise(function(r) { setTimeout(r, (n+1)*1500); }).then(function() { return attempt(n+1); });
+      }
+      throw lastErr;
+    });
+  }
+  return attempt(0);
 }
 
 function apiPostForm(data) {
@@ -459,9 +444,6 @@ function apiPostForm(data) {
   }).catch(function(e) { console.warn('POST error:', e); });
 }
 
-// ══════════════════════════════════════════════════════════
-// PANTALLAS
-// ══════════════════════════════════════════════════════════
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
@@ -474,9 +456,6 @@ function updateDate() {
 updateDate();
 setInterval(updateDate, 60000);
 
-// ══════════════════════════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════════════════════════
 function primerNombre(n) { return n.trim().split(/\s+/)[0]; }
 
 function fmtFecha(v) {
@@ -520,20 +499,12 @@ function calcTiempo(fichaje) {
   } catch(e) { return null; }
 }
 
-// ══════════════════════════════════════════════════════════
-// CARGA DE DATOS
-// ══════════════════════════════════════════════════════════
 async function cargarEmpleados() {
-  var data = await apiGetJSONP({ action: 'getEmpleados' });
+  var data = await apiGetJSONPWithRetry({ action: 'getEmpleados' }, 40000, 4);
   var rows = Array.isArray(data) ? data : (data.data || []);
   state.empleados = rows
     .map(function(r) {
-      return {
-        nombre: r[0] || '',
-        nss:    r[1] || '',
-        dni:    r[2] || '',
-        pin:    String(r[3] || '').trim()
-      };
+      return { nombre: r[0] || '', nss: r[1] || '', dni: r[2] || '', pin: String(r[3] || '').trim() };
     })
     .filter(function(e) { return e.nombre; });
 }
@@ -569,7 +540,7 @@ async function syncSheets() {
     var results = await Promise.all(
       state.empleados.map(async function(e) {
         try {
-          var data = await apiGetJSONP({ action: 'getFichajes', nombre: e.nombre });
+          var data = await apiGetJSONPWithRetry({ action: 'getFichajes', nombre: e.nombre }, 40000, 4);
           var rows = Array.isArray(data) ? data : (data.data || []);
           return [e.nombre, rows.map(function(r) {
             return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
@@ -583,9 +554,6 @@ async function syncSheets() {
   finally { if (btn) btn.classList.remove('spinning'); }
 }
 
-// ══════════════════════════════════════════════════════════
-// SELECCIÓN DE EMPLEADO / PIN
-// ══════════════════════════════════════════════════════════
 function seleccionarEmpleado(i) {
   state.empleadoActual = state.empleados[i];
   state.pinIngresado = '';
@@ -625,41 +593,29 @@ function verificarPin() {
   }
 }
 
-// ══════════════════════════════════════════════════════════
-// PANTALLA FICHAJE
-// ══════════════════════════════════════════════════════════
 async function mostrarPantallaFichaje() {
   showScreen('screen-fichar');
   if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
-
   document.getElementById('fichar-loading').style.display = 'flex';
   document.getElementById('fichar-content').style.display = 'none';
-
   var emp = state.empleadoActual;
   document.getElementById('fich-nombre').textContent = primerNombre(emp.nombre);
-
   var fichs = [];
   try {
-    var data = await apiGetJSONP({ action: 'getFichajes', nombre: emp.nombre });
+    var data = await apiGetJSONPWithRetry({ action: 'getFichajes', nombre: emp.nombre }, 40000, 4);
     var rows = Array.isArray(data) ? data : (data.data || []);
     fichs = rows.map(function(r) {
       return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
     });
-  } catch(e) {
-    console.warn('Error cargando fichajes:', e);
-  }
-
+  } catch(e) { console.warn('Error cargando fichajes:', e); }
   if (syncFichajesMap) syncFichajesMap[emp.nombre] = fichs;
-
   document.getElementById('fichar-loading').style.display = 'none';
   document.getElementById('fichar-content').style.display = 'flex';
-
-  var ultimo    = fichs[0];
+  var ultimo = fichs[0];
   var ultimoTipo = ultimo ? ultimo.tipo : null;
   var wrap = document.getElementById('fich-entrada-wrap');
   var btnE = document.getElementById('btn-entrada');
   var btnS = document.getElementById('btn-salida');
-
   if (ultimoTipo === 'ENTRADA') {
     wrap.style.display = 'grid';
     document.getElementById('fich-entrada-val').textContent = fmtFecha(ultimo.fecha) + ' · ' + fmtHora(ultimo.hora);
@@ -676,7 +632,6 @@ async function mostrarPantallaFichaje() {
     btnE.className = 'btn-fichar btn-entrada'; btnE.onclick = function() { registrarFichaje('ENTRADA'); };
     btnS.className = 'btn-fichar btn-disabled'; btnS.onclick = null;
   }
-
   var primeros4 = fichs.slice(0, 4);
   document.getElementById('fich-history').innerHTML = primeros4.length
     ? primeros4.map(function(f) {
@@ -687,8 +642,6 @@ async function mostrarPantallaFichaje() {
           + '</div>';
       }).join('')
     : '<div class="hist-row" style="color:var(--text2);">Sin fichajes anteriores</div>';
-
-  // Cámara
   try {
     state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
     document.getElementById('video').srcObject = state.stream;
@@ -713,27 +666,18 @@ function capturarFoto() {
   } catch(e) { return ''; }
 }
 
-// ══════════════════════════════════════════════════════════
-// REGISTRAR FICHAJE
-// ══════════════════════════════════════════════════════════
 async function registrarFichaje(tipo) {
   if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
   var emp  = state.empleadoActual;
   var foto = capturarFoto();
   if (state.stream) { state.stream.getTracks().forEach(function(t) { t.stop(); }); state.stream = null; }
-
   var ahora = new Date();
   var fecha = String(ahora.getDate()).padStart(2,'0') + '/'
             + String(ahora.getMonth()+1).padStart(2,'0') + '/'
             + ahora.getFullYear();
   var hora  = String(ahora.getHours()).padStart(2,'0') + ':' + String(ahora.getMinutes()).padStart(2,'0');
-
   var tiempoTexto = null, horasTrabajadas = 0;
-
-  var fichs = syncFichajesMap && syncFichajesMap[emp.nombre]
-    ? syncFichajesMap[emp.nombre]
-    : [];
-
+  var fichs = syncFichajesMap && syncFichajesMap[emp.nombre] ? syncFichajesMap[emp.nombre] : [];
   if (tipo === 'SALIDA') {
     var ultimaEntrada = null;
     for (var k = 0; k < fichs.length; k++) {
@@ -746,13 +690,11 @@ async function registrarFichaje(tipo) {
       horasTrabajadas = h;
     }
   }
-
   if (syncFichajesMap) {
     if (!syncFichajesMap[emp.nombre]) syncFichajesMap[emp.nombre] = [];
     syncFichajesMap[emp.nombre].unshift({ fecha: fecha, tipo: tipo, hora: hora, foto: foto ? 'si' : '' });
   }
   renderEmpleados(syncFichajesMap);
-
   apiPostForm({
     action: 'addFichaje',
     nombre: emp.nombre,
@@ -761,85 +703,41 @@ async function registrarFichaje(tipo) {
     hora:   hora,
     foto:   foto ? 'si' : ''
   }).catch(function(e) { console.warn('Error guardando fichaje:', e); });
-
   mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas);
 }
 
-// ══════════════════════════════════════════════════════════
-// PANTALLA ÉXITO
-// ══════════════════════════════════════════════════════════
 function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
   var icon = document.getElementById('success-icon');
   icon.className = 'success-icon ' + (tipo === 'ENTRADA' ? 'icon-entrada' : 'icon-salida');
   icon.textContent = tipo === 'ENTRADA' ? '↗' : '↙';
-
   document.getElementById('success-name').textContent = primerNombre(state.empleadoActual.nombre);
   document.getElementById('success-hora').textContent = tipo === 'ENTRADA' ? 'Entrada · ' + hora : 'Salida · ' + hora;
-
   var tEl = document.getElementById('success-tiempo');
   if (tiempoTexto && tipo === 'SALIDA') { tEl.textContent = tiempoTexto; tEl.style.display = 'block'; }
   else { tEl.style.display = 'none'; }
-
   document.getElementById('aviso-ojo').style.display = (tipo === 'SALIDA' && horasTrabajadas >= 11) ? 'block' : 'none';
-
   var img = document.getElementById('success-photo');
   if (foto) { img.src = foto; img.style.display = 'block'; }
   else { img.style.display = 'none'; }
-
   showScreen('screen-success');
-
   var bar = document.getElementById('countdown-bar');
   if (bar) {
     bar.style.transition = 'none'; bar.style.width = '100%';
     setTimeout(function() { bar.style.transition = 'width 5s linear'; bar.style.width = '0%'; }, 50);
   }
-
   if (state.countdownTimeout) clearTimeout(state.countdownTimeout);
   state.countdownTimeout = setTimeout(function() { showScreen('screen-main'); }, 5000);
 }
 
-// ══════════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════════
-async function init() {
-  try {
-    await cargarEmpleados();
-    renderEmpleados(null);
-    showScreen('screen-main');
-
-    var results = await Promise.all(
-      state.empleados.map(async function(e) {
-        try {
-          var data = await apiGetJSONP({ action: 'getFichajes', nombre: e.nombre });
-          var rows = Array.isArray(data) ? data : (data.data || []);
-          return [e.nombre, rows.map(function(r) {
-            return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
-          })];
-        } catch(err) { return [e.nombre, []]; }
-      })
-    );
-    syncFichajesMap = Object.fromEntries(results);
-    renderEmpleados(syncFichajesMap);
-
-  } catch(e) {
-    console.error('Error de inicio:', e);
-    document.getElementById('screen-loading').innerHTML =
-      '<div class="loading-wrap">'
-      + '<div class="error-wrap">'
-      + '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8b2131" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
-      + '<div class="error-msg">No se pudo conectar con el Apps Script.<br><br>'
-      + '<small style="color:var(--text2)">Asegúrate de que el script está publicado como app web con acceso "Cualquier persona" y que la función <strong>doGet</strong> acepta el parámetro <strong>callback</strong> (JSONP).</small></div>'
-      + '<button class="retry-btn" onclick="init()">↻ Reintentar</button>'
-      + '</div></div>';
-    document.getElementById('screen-loading').classList.add('active');
-  }
+// INIT: muestra pantalla inmediatamente, carga en segundo plano
+function init() {
+  updateDate();
+  showScreen('screen-main');
+  syncSheets();
 }
 
 init();
 
-// ══════════════════════════════════════════════════════════
-// SERVICE WORKER (PWA)
-// ══════════════════════════════════════════════════════════
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js');
 }
