@@ -187,8 +187,8 @@ body {
 
 .fich-name {
   font-family: 'Playfair Display', serif;
-  font-size: 38px; letter-spacing: -1px;
-  text-align: center; margin-bottom: 1.25rem; line-height: 1;
+  font-size: 28px; letter-spacing: -0.5px;
+  text-align: center; margin-bottom: 0.75rem; line-height: 1;
 }
 .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
 .info-chip { border-radius: var(--r-sm); padding: 12px 14px; }
@@ -203,7 +203,7 @@ body {
 .video-wrap {
   border-radius: var(--r); overflow: hidden;
   border: 1px solid var(--border); background: #1a1a1a;
-  aspect-ratio: 4/3; margin-bottom: 1rem; position: relative;
+  aspect-ratio: 4/3; max-height: 180px; margin-bottom: 0.75rem; position: relative;
 }
 #video { width: 100%; display: block; }
 #canvas { display: none; }
@@ -626,12 +626,12 @@ async function mostrarPantallaFichaje() {
     }
     tick();
     state.tiempoInterval = setInterval(tick, 30000);
-    btnE.className = 'btn-fichar btn-disabled'; btnE.onclick = null;
-    btnS.className = 'btn-fichar btn-salida';   btnS.onclick = function() { registrarFichaje('SALIDA'); };
+    btnE.className = 'btn-fichar btn-disabled'; btnE.onclick = null; btnE.style.display = 'none';
+    btnS.className = 'btn-fichar btn-salida';   btnS.onclick = function() { registrarFichaje('SALIDA'); }; btnS.style.display = '';
   } else {
     wrap.style.display = 'none';
-    btnE.className = 'btn-fichar btn-entrada'; btnE.onclick = function() { registrarFichaje('ENTRADA'); };
-    btnS.className = 'btn-fichar btn-disabled'; btnS.onclick = null;
+    btnE.className = 'btn-fichar btn-entrada'; btnE.onclick = function() { registrarFichaje('ENTRADA'); }; btnE.style.display = '';
+    btnS.className = 'btn-fichar btn-disabled'; btnS.onclick = null; btnS.style.display = 'none';
   }
   var primeros4 = fichs.slice(0, 4);
   document.getElementById('fich-history').innerHTML = primeros4.length
