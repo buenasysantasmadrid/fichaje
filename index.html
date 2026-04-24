@@ -533,24 +533,70 @@ function renderEmpleados(fichajesMap) {
 
 var syncFichajesMap = null;
 
+// Actualiza el estado de un empleado en el mapa local y re-renderiza
+// sin hacer ninguna petición de red.
+function actualizarEstadoLocal(nombre, tipo, fecha, hora, foto) {
+  if (!syncFichajesMap) syncFichajesMap = {};
+  if (!syncFichajesMap[nombre]) syncFichajesMap[nombre] = [];
+  syncFichajesMap[nombre].unshift({ fecha: fecha, tipo: tipo, hora: hora, foto: foto ? 'si' : '' });
+  renderEmpleados(syncFichajesMap);
+}
+
 async function syncSheets() {
   var btn = document.getElementById('sync-btn');
   if (btn) btn.classList.add('spinning');
   try {
-    await cargarEmpleados();
-    var results = await Promise.all(
-      state.empleados.map(async function(e) {
-        try {
-          var data = await apiGetJSONPWithRetry({ action: 'getFichajes', nombre: e.nombre }, 40000, 4);
-          var rows = Array.isArray(data) ? data : (data.data || []);
-          return [e.nombre, rows.map(function(r) {
-            return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
-          })];
-        } catch(err) { return [e.nombre, []]; }
-      })
-    );
-    syncFichajesMap = Object.fromEntries(results);
-    renderEmpleados(syncFichajesMap);
+    // 1. Cargar empleados si aún no los tenemos
+    if (!state.empleados.length) {
+      await cargarEmpleados();
+      // Renderizar tarjetas vacías inmediatamente para que la pantalla no esté en blanco
+      renderEmpleados(syncFichajesMap);
+    }
+
+    // 2. Intentar carga rápida con getAllStatus (una sola petición para todos)
+    var usedBulk = false;
+    try {
+      var bulk = await apiGetJSONPWithRetry({ action: 'getAllStatus' }, 15000, 1);
+      // Espera: { "Nombre Empleado": { fecha, tipo, hora, foto }, ... }
+      // o { data: { ... } }
+      var map = (bulk && typeof bulk === 'object' && !Array.isArray(bulk) && bulk.data)
+                ? bulk.data : bulk;
+      if (map && typeof map === 'object' && !Array.isArray(map)) {
+        // Construir fichajesMap con solo el último fichaje por empleado
+        // (suficiente para mostrar el estado en la pantalla de inicio)
+        var newMap = {};
+        state.empleados.forEach(function(emp) {
+          var entry = map[emp.nombre];
+          if (entry && entry.tipo) {
+            newMap[emp.nombre] = [{ fecha: entry.fecha||'', tipo: entry.tipo||'', hora: entry.hora||'', foto: entry.foto||'' }];
+          } else {
+            newMap[emp.nombre] = syncFichajesMap ? (syncFichajesMap[emp.nombre] || []) : [];
+          }
+        });
+        syncFichajesMap = newMap;
+        renderEmpleados(syncFichajesMap);
+        usedBulk = true;
+      }
+    } catch(bulkErr) {
+      console.info('getAllStatus no disponible, usando getFichajes individual:', bulkErr.message);
+    }
+
+    // 3. Fallback: carga individual en paralelo si el bulk falló
+    if (!usedBulk) {
+      var results = await Promise.all(
+        state.empleados.map(async function(e) {
+          try {
+            var data = await apiGetJSONPWithRetry({ action: 'getFichajes', nombre: e.nombre }, 40000, 2);
+            var rows = Array.isArray(data) ? data : (data.data || []);
+            return [e.nombre, rows.map(function(r) {
+              return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
+            })];
+          } catch(err) { return [e.nombre, syncFichajesMap ? (syncFichajesMap[e.nombre] || []) : []]; }
+        })
+      );
+      syncFichajesMap = Object.fromEntries(results);
+      renderEmpleados(syncFichajesMap);
+    }
   } catch(e) { console.warn('Sync error:', e); }
   finally { if (btn) btn.classList.remove('spinning'); }
 }
@@ -597,58 +643,87 @@ function verificarPin() {
 async function mostrarPantallaFichaje() {
   showScreen('screen-fichar');
   if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
-  document.getElementById('fichar-loading').style.display = 'flex';
-  document.getElementById('fichar-content').style.display = 'none';
   var emp = state.empleadoActual;
   document.getElementById('fich-nombre').textContent = primerNombre(emp.nombre);
-  var fichs = [];
-  try {
-    var data = await apiGetJSONPWithRetry({ action: 'getFichajes', nombre: emp.nombre }, 40000, 4);
-    var rows = Array.isArray(data) ? data : (data.data || []);
-    fichs = rows.map(function(r) {
-      return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
-    });
-  } catch(e) { console.warn('Error cargando fichajes:', e); }
-  if (syncFichajesMap) syncFichajesMap[emp.nombre] = fichs;
-  document.getElementById('fichar-loading').style.display = 'none';
-  document.getElementById('fichar-content').style.display = 'flex';
-  var ultimo = fichs[0];
-  var ultimoTipo = ultimo ? ultimo.tipo : null;
-  var wrap = document.getElementById('fich-entrada-wrap');
-  var btnE = document.getElementById('btn-entrada');
-  var btnS = document.getElementById('btn-salida');
-  if (ultimoTipo === 'ENTRADA') {
-    wrap.style.display = 'grid';
-    document.getElementById('fich-entrada-val').textContent = fmtFecha(ultimo.fecha) + ' · ' + fmtHora(ultimo.hora);
-    function tick() {
-      var t = calcTiempo(ultimo);
-      document.getElementById('fich-tiempo-val').textContent = t || '—';
-    }
-    tick();
-    state.tiempoInterval = setInterval(tick, 30000);
-    btnE.className = 'btn-fichar btn-disabled'; btnE.onclick = null; btnE.style.display = 'none';
-    btnS.className = 'btn-fichar btn-salida';   btnS.onclick = function() { registrarFichaje('SALIDA'); }; btnS.style.display = '';
+
+  // Si tenemos datos en caché los mostramos de inmediato (sin spinner)
+  var cached = syncFichajesMap && syncFichajesMap[emp.nombre];
+  var fichs = cached || [];
+
+  if (cached) {
+    document.getElementById('fichar-loading').style.display = 'none';
+    document.getElementById('fichar-content').style.display = 'flex';
   } else {
-    wrap.style.display = 'none';
-    btnE.className = 'btn-fichar btn-entrada'; btnE.onclick = function() { registrarFichaje('ENTRADA'); }; btnE.style.display = '';
-    btnS.className = 'btn-fichar btn-disabled'; btnS.onclick = null; btnS.style.display = 'none';
+    document.getElementById('fichar-loading').style.display = 'flex';
+    document.getElementById('fichar-content').style.display = 'none';
   }
-  var primeros4 = fichs.slice(0, 4);
-  document.getElementById('fich-history').innerHTML = primeros4.length
-    ? primeros4.map(function(f) {
-        return '<div class="hist-row">'
-          + '<span class="hist-type ' + (f.tipo === 'ENTRADA' ? 'e' : 's') + '">' + f.tipo + '</span>'
-          + '<span class="hist-fecha">' + fmtFecha(f.fecha) + '</span>'
-          + '<span class="hist-hora">' + fmtHora(f.hora) + '</span>'
-          + '</div>';
-      }).join('')
-    : '<div class="hist-row" style="color:var(--text2);">Sin fichajes anteriores</div>';
-  try {
-    state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-    document.getElementById('video').srcObject = state.stream;
-    document.getElementById('cam-off').style.display = 'none';
-  } catch(e) {
-    document.getElementById('cam-off').style.display = 'flex';
+
+  // Renderizar botones e historial con los fichajes dados
+  function renderFichar(fichs) {
+    if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
+    var ultimo = fichs[0];
+    var ultimoTipo = ultimo ? ultimo.tipo : null;
+    var wrap = document.getElementById('fich-entrada-wrap');
+    var btnE = document.getElementById('btn-entrada');
+    var btnS = document.getElementById('btn-salida');
+    if (ultimoTipo === 'ENTRADA') {
+      wrap.style.display = 'grid';
+      document.getElementById('fich-entrada-val').textContent = fmtFecha(ultimo.fecha) + ' · ' + fmtHora(ultimo.hora);
+      function tick() {
+        var t = calcTiempo(ultimo);
+        document.getElementById('fich-tiempo-val').textContent = t || '—';
+      }
+      tick();
+      state.tiempoInterval = setInterval(tick, 30000);
+      btnE.className = 'btn-fichar btn-disabled'; btnE.onclick = null; btnE.style.display = 'none';
+      btnS.className = 'btn-fichar btn-salida'; btnS.onclick = function() { registrarFichaje('SALIDA'); }; btnS.style.display = '';
+    } else {
+      wrap.style.display = 'none';
+      btnE.className = 'btn-fichar btn-entrada'; btnE.onclick = function() { registrarFichaje('ENTRADA'); }; btnE.style.display = '';
+      btnS.className = 'btn-fichar btn-disabled'; btnS.onclick = null; btnS.style.display = 'none';
+    }
+    var primeros4 = fichs.slice(0, 4);
+    document.getElementById('fich-history').innerHTML = primeros4.length
+      ? primeros4.map(function(f) {
+          return '<div class="hist-row">'
+            + '<span class="hist-type ' + (f.tipo === 'ENTRADA' ? 'e' : 's') + '">' + f.tipo + '</span>'
+            + '<span class="hist-fecha">' + fmtFecha(f.fecha) + '</span>'
+            + '<span class="hist-hora">' + fmtHora(f.hora) + '</span>'
+            + '</div>';
+        }).join('')
+      : '<div class="hist-row" style="color:var(--text2);">Sin fichajes anteriores</div>';
+  }
+
+  // Si tenemos caché, renderizar ya y mostrar contenido sin spinner
+  if (cached) {
+    renderFichar(fichs);
+  }
+
+  // Iniciar cámara en paralelo (no bloquea la UI)
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+    .then(function(stream) {
+      state.stream = stream;
+      document.getElementById('video').srcObject = stream;
+      document.getElementById('cam-off').style.display = 'none';
+    })
+    .catch(function() {
+      document.getElementById('cam-off').style.display = 'flex';
+    });
+
+  // Si no había caché, cargar de la red y luego mostrar
+  if (!cached) {
+    try {
+      var data = await apiGetJSONPWithRetry({ action: 'getFichajes', nombre: emp.nombre }, 40000, 2);
+      var rows = Array.isArray(data) ? data : (data.data || []);
+      fichs = rows.map(function(r) {
+        return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
+      });
+      if (!syncFichajesMap) syncFichajesMap = {};
+      syncFichajesMap[emp.nombre] = fichs;
+    } catch(e) { console.warn('Error cargando fichajes:', e); }
+    renderFichar(fichs);
+    document.getElementById('fichar-loading').style.display = 'none';
+    document.getElementById('fichar-content').style.display = 'flex';
   }
 }
 
@@ -691,11 +766,8 @@ async function registrarFichaje(tipo) {
       horasTrabajadas = h;
     }
   }
-  if (syncFichajesMap) {
-    if (!syncFichajesMap[emp.nombre]) syncFichajesMap[emp.nombre] = [];
-    syncFichajesMap[emp.nombre].unshift({ fecha: fecha, tipo: tipo, hora: hora, foto: foto ? 'si' : '' });
-  }
-  renderEmpleados(syncFichajesMap);
+  // Actualizar estado local inmediatamente (sin esperar a la red)
+  actualizarEstadoLocal(emp.nombre, tipo, fecha, hora, foto);
   apiPostForm({
     action: 'addFichaje',
     nombre: emp.nombre,
@@ -735,6 +807,12 @@ function init() {
   updateDate();
   showScreen('screen-main');
   syncSheets();
+  // Refresco periódico en segundo plano cada 5 min (silencioso, sin spinner)
+  setInterval(function() {
+    if (document.getElementById('screen-main').classList.contains('active')) {
+      syncSheets();
+    }
+  }, 5 * 60 * 1000);
 }
 
 init();
