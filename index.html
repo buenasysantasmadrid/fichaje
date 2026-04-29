@@ -751,7 +751,7 @@ async function registrarFichaje(tipo) {
   var fecha = String(ahora.getDate()).padStart(2,'0') + '/'
             + String(ahora.getMonth()+1).padStart(2,'0') + '/'
             + ahora.getFullYear();
-  var hora  = String(ahora.getHours()).padStart(2,'0') + ':' + String(ahora.getMinutes()).padStart(2,'0');
+  var hora  = String(ahora.getHours()).padStart(2,'0') + ':' + String(ahora.getMinutes()).padStart(2,'0') + ':' + String(ahora.getSeconds()).padStart(2,'0');
   var tiempoTexto = null, horasTrabajadas = 0;
   var fichs = syncFichajesMap && syncFichajesMap[emp.nombre] ? syncFichajesMap[emp.nombre] : [];
   if (tipo === 'SALIDA') {
@@ -763,7 +763,7 @@ async function registrarFichaje(tipo) {
       var minTurno = diferenciaMin(ultimaEntrada.hora, hora);
       var h = Math.floor(minTurno / 60), m = minTurno % 60;
       tiempoTexto = 'Has trabajado ' + h + ' horas y ' + m + ' minutos';
-      horasTrabajadas = h;
+      horasTrabajadas = minTurno / 60; // valor decimal, no entero
     }
   }
   // Actualizar estado local inmediatamente (sin esperar a la red)
@@ -799,7 +799,10 @@ function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
     setTimeout(function() { bar.style.transition = 'width 5s linear'; bar.style.width = '0%'; }, 50);
   }
   if (state.countdownTimeout) clearTimeout(state.countdownTimeout);
-  state.countdownTimeout = setTimeout(function() { showScreen('screen-main'); }, 5000);
+  state.countdownTimeout = setTimeout(function() {
+    showScreen('screen-main');
+    syncSheets();
+  }, 5000);
 }
 
 // INIT: muestra pantalla inmediatamente, carga en segundo plano
