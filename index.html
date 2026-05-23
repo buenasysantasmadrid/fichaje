@@ -387,8 +387,41 @@ body {
 <canvas id="canvas" style="display:none;"></canvas>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypMnnN4c7Wh8FQzFFrE9r_dxH2JlfhvwikBo7-iGks0KFegjEm0XAdWEymNmie4VlU/exec';
+// ══════════════════════════════════════════════════════════════════════════════
+// SUPABASE CONFIG — reemplaza estos dos valores con los de tu proyecto
+// ══════════════════════════════════════════════════════════════════════════════
+const SUPABASE_URL    = 'https://bseayyfvivnloqkswshb.supabase.co';
+const SUPABASE_ANON   = 'sb_publishable_h5RF63turgcsro_2KSUA0A_375BDAFQ';
 
+// ── Helpers REST ─────────────────────────────────────────────────────────────
+function sbHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_ANON,
+    'Authorization': 'Bearer ' + SUPABASE_ANON,
+  };
+}
+
+async function sbGet(table, params) {
+  var qs = Object.entries(params || {}).map(function([k,v]) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(v);
+  }).join('&');
+  var url = SUPABASE_URL + '/rest/v1/' + table + (qs ? '?' + qs : '');
+  var res = await fetch(url, { headers: sbHeaders() });
+  if (!res.ok) throw new Error('Supabase GET error ' + res.status);
+  return res.json();
+}
+
+async function sbPost(table, body) {
+  var res = await fetch(SUPABASE_URL + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: Object.assign({}, sbHeaders(), { 'Prefer': 'return=minimal' }),
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error('Supabase POST error ' + res.status);
+}
+
+// ── Estado global ─────────────────────────────────────────────────────────────
 const state = {
   empleados: [],
   empleadoActual: null,
@@ -398,53 +431,7 @@ const state = {
   countdownTimeout: null,
 };
 
-function apiGetJSONP(params, timeoutMs) {
-  timeoutMs = timeoutMs || 40000;
-  return new Promise(function(resolve, reject) {
-    var cbName = '_gs_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    var script = document.createElement('script');
-    var timer = setTimeout(function() { cleanup(); reject(new Error('Timeout')); }, timeoutMs);
-    function cleanup() {
-      clearTimeout(timer);
-      delete window[cbName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-    }
-    window[cbName] = function(data) { cleanup(); resolve(data); };
-    params.callback = cbName;
-    var qs = Object.keys(params).map(function(k) {
-      return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
-    }).join('&');
-    script.src = SCRIPT_URL + '?' + qs;
-    script.onerror = function() { cleanup(); reject(new Error('Error de red')); };
-    document.head.appendChild(script);
-  });
-}
-
-function apiGetJSONPWithRetry(params, timeoutMs, retries) {
-  retries = (retries !== undefined) ? retries : 4;
-  timeoutMs = timeoutMs || 40000;
-  var lastErr;
-  function attempt(n) {
-    return apiGetJSONP(params, timeoutMs).catch(function(e) {
-      lastErr = e;
-      if (n < retries) {
-        return new Promise(function(r) { setTimeout(r, (n+1)*1500); }).then(function() { return attempt(n+1); });
-      }
-      throw lastErr;
-    });
-  }
-  return attempt(0);
-}
-
-function apiPostForm(data) {
-  return fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(data)
-  }).catch(function(e) { console.warn('POST error:', e); });
-}
-
+// ── UI helpers ────────────────────────────────────────────────────────────────
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
@@ -460,11 +447,12 @@ setInterval(updateDate, 60000);
 function primerNombre(n) { return n.trim().split(/\s+/)[0]; }
 
 function fmtFecha(v) {
+  // Supabase devuelve fechas en formato ISO (YYYY-MM-DD)
   if (!v) return '—';
   var s = String(v).trim();
-  if (s.includes('/')) {
-    var p = s.split('/');
-    if (p.length === 3) return p[0].padStart(2,'0') + '/' + p[1].padStart(2,'0') + '/' + p[2];
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    var p = s.substring(0,10).split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
   }
   return s;
 }
@@ -488,11 +476,14 @@ function diferenciaMin(e, s) {
 
 function calcTiempo(fichaje) {
   try {
-    var f = fmtFecha(fichaje.fecha), h = fmtHora(fichaje.hora);
-    if (!f || !h || f === '—' || h === '—') return null;
-    var fp = f.split('/'), hp = h.split(':');
+    // fecha ISO: "2026-05-20", hora: "09:08"
+    var fechaStr = fichaje.fecha ? String(fichaje.fecha).substring(0,10) : null;
+    var horaStr  = fichaje.hora  ? String(fichaje.hora).substring(0,5)  : null;
+    if (!fechaStr || !horaStr) return null;
+    var fp = fechaStr.split('-'), hp = horaStr.split(':');
     if (fp.length !== 3 || hp.length < 2) return null;
-    var dt = new Date(parseInt(fp[2]), parseInt(fp[1])-1, parseInt(fp[0]), parseInt(hp[0]), parseInt(hp[1]), 0);
+    var dt = new Date(parseInt(fp[0]), parseInt(fp[1])-1, parseInt(fp[2]),
+                      parseInt(hp[0]), parseInt(hp[1]), 0);
     var diff = Date.now() - dt.getTime();
     if (diff < 0) return null;
     var totalMin = Math.floor(diff / 60000);
@@ -500,16 +491,30 @@ function calcTiempo(fichaje) {
   } catch(e) { return null; }
 }
 
+// ── Carga de empleados desde Supabase ─────────────────────────────────────────
 async function cargarEmpleados() {
-  var data = await apiGetJSONPWithRetry({ action: 'getEmpleados' }, 40000, 4);
-  var rows = Array.isArray(data) ? data : (data.data || []);
-  state.empleados = rows
-    .map(function(r) {
-      return { nombre: r[0] || '', nss: r[1] || '', dni: r[2] || '', pin: String(r[3] || '').trim() };
-    })
-    .filter(function(e) { return e.nombre; });
+  // Solo empleados activos, ordenados por nombre
+  var rows = await sbGet('empleados', {
+    'select': 'nombre,pin',
+    'activo': 'eq.true',
+    'order': 'nombre.asc',
+  });
+  state.empleados = rows.map(function(r) {
+    return { nombre: r.nombre || '', pin: String(r.pin || '').trim() };
+  }).filter(function(e) { return e.nombre; });
 }
 
+// ── Mapa de últimos fichajes en memoria ───────────────────────────────────────
+var syncFichajesMap = null;
+
+function actualizarEstadoLocal(nombre, tipo, fecha, hora) {
+  if (!syncFichajesMap) syncFichajesMap = {};
+  if (!syncFichajesMap[nombre]) syncFichajesMap[nombre] = [];
+  syncFichajesMap[nombre].unshift({ fecha: fecha, tipo: tipo, hora: hora });
+  renderEmpleados(syncFichajesMap);
+}
+
+// ── Render de tarjetas de empleados ──────────────────────────────────────────
 function renderEmpleados(fichajesMap) {
   var g = document.getElementById('emp-grid');
   if (!g) return;
@@ -531,76 +536,49 @@ function renderEmpleados(fichajesMap) {
   }).join('');
 }
 
-var syncFichajesMap = null;
-
-// Actualiza el estado de un empleado en el mapa local y re-renderiza
-// sin hacer ninguna petición de red.
-function actualizarEstadoLocal(nombre, tipo, fecha, hora, foto) {
-  if (!syncFichajesMap) syncFichajesMap = {};
-  if (!syncFichajesMap[nombre]) syncFichajesMap[nombre] = [];
-  syncFichajesMap[nombre].unshift({ fecha: fecha, tipo: tipo, hora: hora, foto: foto ? 'si' : '' });
-  renderEmpleados(syncFichajesMap);
-}
-
+// ── Sync principal ────────────────────────────────────────────────────────────
 async function syncSheets() {
   var btn = document.getElementById('sync-btn');
   if (btn) btn.classList.add('spinning');
   try {
-    // 1. Cargar empleados si aún no los tenemos
+    // 1. Empleados
     if (!state.empleados.length) {
       await cargarEmpleados();
-      // Renderizar tarjetas vacías inmediatamente para que la pantalla no esté en blanco
       renderEmpleados(syncFichajesMap);
     }
 
-    // 2. Intentar carga rápida con getAllStatus (una sola petición para todos)
-    var usedBulk = false;
-    try {
-      var bulk = await apiGetJSONPWithRetry({ action: 'getAllStatus' }, 15000, 1);
-      // Espera: { "Nombre Empleado": { fecha, tipo, hora, foto }, ... }
-      // o { data: { ... } }
-      var map = (bulk && typeof bulk === 'object' && !Array.isArray(bulk) && bulk.data)
-                ? bulk.data : bulk;
-      if (map && typeof map === 'object' && !Array.isArray(map)) {
-        // Construir fichajesMap con solo el último fichaje por empleado
-        // (suficiente para mostrar el estado en la pantalla de inicio)
-        var newMap = {};
-        state.empleados.forEach(function(emp) {
-          var entry = map[emp.nombre];
-          if (entry && entry.tipo) {
-            newMap[emp.nombre] = [{ fecha: entry.fecha||'', tipo: entry.tipo||'', hora: entry.hora||'', foto: entry.foto||'' }];
-          } else {
-            newMap[emp.nombre] = syncFichajesMap ? (syncFichajesMap[emp.nombre] || []) : [];
-          }
-        });
-        syncFichajesMap = newMap;
-        renderEmpleados(syncFichajesMap);
-        usedBulk = true;
+    // 2. Último fichaje de cada empleado en una sola consulta
+    //    Supabase: ORDER BY fecha DESC, hora DESC, LIMIT 1 por empleado
+    //    Lo hacemos con una sola petición a la vista/tabla fichajes
+    //    filtrando todos los nombres y agrupando en JS
+    var nombres = state.empleados.map(function(e) { return e.nombre; });
+    // Traemos el último fichaje de cada empleado (máx fecha+hora)
+    var rows = await sbGet('fichajes', {
+      'select': 'empleado_nombre,fecha,tipo,hora',
+      'empleado_nombre': 'in.(' + nombres.map(function(n) { return '"' + n + '"'; }).join(',') + ')',
+      'order': 'fecha.desc,hora.desc',
+      'limit': '500',
+    });
+
+    // Agrupar: por cada empleado, quedamos solo con el primero (más reciente)
+    var newMap = {};
+    nombres.forEach(function(n) { newMap[n] = []; });
+    rows.forEach(function(r) {
+      var n = r.empleado_nombre;
+      if (newMap[n] !== undefined && newMap[n].length === 0) {
+        newMap[n].push({ fecha: r.fecha, tipo: r.tipo, hora: r.hora });
       }
-    } catch(bulkErr) {
-      console.info('getAllStatus no disponible, usando getFichajes individual:', bulkErr.message);
-    }
-
-    // 3. Fallback: carga individual en paralelo si el bulk falló
-    if (!usedBulk) {
-      var results = await Promise.all(
-        state.empleados.map(async function(e) {
-          try {
-            var data = await apiGetJSONPWithRetry({ action: 'getFichajes', nombre: e.nombre }, 40000, 2);
-            var rows = Array.isArray(data) ? data : (data.data || []);
-            return [e.nombre, rows.map(function(r) {
-              return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
-            })];
-          } catch(err) { return [e.nombre, syncFichajesMap ? (syncFichajesMap[e.nombre] || []) : []]; }
-        })
-      );
-      syncFichajesMap = Object.fromEntries(results);
-      renderEmpleados(syncFichajesMap);
-    }
-  } catch(e) { console.warn('Sync error:', e); }
-  finally { if (btn) btn.classList.remove('spinning'); }
+    });
+    syncFichajesMap = newMap;
+    renderEmpleados(syncFichajesMap);
+  } catch(e) {
+    console.warn('Sync error:', e);
+  } finally {
+    if (btn) btn.classList.remove('spinning');
+  }
 }
 
+// ── Selección de empleado y PIN ───────────────────────────────────────────────
 function seleccionarEmpleado(i) {
   state.empleadoActual = state.empleados[i];
   state.pinIngresado = '';
@@ -640,25 +618,25 @@ function verificarPin() {
   }
 }
 
+// ── Pantalla de fichaje ───────────────────────────────────────────────────────
 async function mostrarPantallaFichaje() {
   showScreen('screen-fichar');
   if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
   var emp = state.empleadoActual;
   document.getElementById('fich-nombre').textContent = primerNombre(emp.nombre);
 
-  // Si tenemos datos en caché los mostramos de inmediato (sin spinner)
   var cached = syncFichajesMap && syncFichajesMap[emp.nombre];
   var fichs = cached || [];
 
-  if (cached) {
+  if (cached && cached.length > 0) {
     document.getElementById('fichar-loading').style.display = 'none';
     document.getElementById('fichar-content').style.display = 'flex';
+    renderFichar(fichs);
   } else {
     document.getElementById('fichar-loading').style.display = 'flex';
     document.getElementById('fichar-content').style.display = 'none';
   }
 
-  // Renderizar botones e historial con los fichajes dados
   function renderFichar(fichs) {
     if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
     var ultimo = fichs[0];
@@ -694,12 +672,7 @@ async function mostrarPantallaFichaje() {
       : '<div class="hist-row" style="color:var(--text2);">Sin fichajes anteriores</div>';
   }
 
-  // Si tenemos caché, renderizar ya y mostrar contenido sin spinner
-  if (cached) {
-    renderFichar(fichs);
-  }
-
-  // Iniciar cámara en paralelo (no bloquea la UI)
+  // Cámara en paralelo
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
     .then(function(stream) {
       state.stream = stream;
@@ -710,13 +683,17 @@ async function mostrarPantallaFichaje() {
       document.getElementById('cam-off').style.display = 'flex';
     });
 
-  // Si no había caché, cargar de la red y luego mostrar
-  if (!cached) {
+  // Si no había caché, cargar los últimos fichajes del empleado
+  if (!cached || cached.length === 0) {
     try {
-      var data = await apiGetJSONPWithRetry({ action: 'getFichajes', nombre: emp.nombre }, 40000, 2);
-      var rows = Array.isArray(data) ? data : (data.data || []);
+      var rows = await sbGet('fichajes', {
+        'select': 'fecha,tipo,hora',
+        'empleado_nombre': 'eq.' + emp.nombre,
+        'order': 'fecha.desc,hora.desc',
+        'limit': '10',
+      });
       fichs = rows.map(function(r) {
-        return { fecha: r[0]||'', tipo: r[1]||'', hora: r[2]||'', foto: r[3]||'' };
+        return { fecha: r.fecha, tipo: r.tipo, hora: r.hora };
       });
       if (!syncFichajesMap) syncFichajesMap = {};
       syncFichajesMap[emp.nombre] = fichs;
@@ -742,16 +719,22 @@ function capturarFoto() {
   } catch(e) { return ''; }
 }
 
+// ── Registrar fichaje en Supabase ─────────────────────────────────────────────
 async function registrarFichaje(tipo) {
   if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
   var emp  = state.empleadoActual;
   var foto = capturarFoto();
   if (state.stream) { state.stream.getTracks().forEach(function(t) { t.stop(); }); state.stream = null; }
+
   var ahora = new Date();
-  var fecha = String(ahora.getDate()).padStart(2,'0') + '/'
-            + String(ahora.getMonth()+1).padStart(2,'0') + '/'
-            + ahora.getFullYear();
-  var hora  = String(ahora.getHours()).padStart(2,'0') + ':' + String(ahora.getMinutes()).padStart(2,'0') + ':' + String(ahora.getSeconds()).padStart(2,'0');
+  // fecha en ISO para Supabase
+  var fecha = ahora.getFullYear() + '-'
+            + String(ahora.getMonth()+1).padStart(2,'0') + '-'
+            + String(ahora.getDate()).padStart(2,'0');
+  var hora  = String(ahora.getHours()).padStart(2,'0') + ':'
+            + String(ahora.getMinutes()).padStart(2,'0') + ':'
+            + String(ahora.getSeconds()).padStart(2,'0');
+
   var tiempoTexto = null, horasTrabajadas = 0;
   var fichs = syncFichajesMap && syncFichajesMap[emp.nombre] ? syncFichajesMap[emp.nombre] : [];
   if (tipo === 'SALIDA') {
@@ -763,22 +746,28 @@ async function registrarFichaje(tipo) {
       var minTurno = diferenciaMin(ultimaEntrada.hora, hora);
       var h = Math.floor(minTurno / 60), m = minTurno % 60;
       tiempoTexto = 'Has trabajado ' + h + ' horas y ' + m + ' minutos';
-      horasTrabajadas = minTurno / 60; // valor decimal, no entero
+      horasTrabajadas = minTurno / 60;
     }
   }
-  // Actualizar estado local inmediatamente (sin esperar a la red)
-  actualizarEstadoLocal(emp.nombre, tipo, fecha, hora, foto);
-  apiPostForm({
-    action: 'addFichaje',
-    nombre: emp.nombre,
-    fecha:  fecha,
-    tipo:   tipo,
-    hora:   hora,
-    foto:   foto ? 'si' : ''
-  }).catch(function(e) { console.warn('Error guardando fichaje:', e); });
+
+  // Actualizar estado local inmediatamente (UI optimista)
+  actualizarEstadoLocal(emp.nombre, tipo, fecha, hora);
+
+  // Guardar en Supabase (sin foto en base64 — columna foto no existe en el schema)
+  sbPost('fichajes', {
+    empleado_id:     null,          // opcional, se puede omitir
+    empleado_nombre: emp.nombre,
+    fecha:           fecha,
+    tipo:            tipo,
+    hora:            hora.substring(0,5),  // HH:MM
+    hora_turno:      '',
+    hora_dia:        '',
+  }).catch(function(e) { console.warn('Error guardando fichaje en Supabase:', e); });
+
   mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas);
 }
 
+// ── Pantalla de éxito ─────────────────────────────────────────────────────────
 function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
   var icon = document.getElementById('success-icon');
   icon.className = 'success-icon ' + (tipo === 'ENTRADA' ? 'icon-entrada' : 'icon-salida');
@@ -805,12 +794,11 @@ function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
   }, 5000);
 }
 
-// INIT: muestra pantalla inmediatamente, carga en segundo plano
+// ── Init ──────────────────────────────────────────────────────────────────────
 function init() {
   updateDate();
   showScreen('screen-main');
   syncSheets();
-  // Refresco periódico en segundo plano cada 5 min (silencioso, sin spinner)
   setInterval(function() {
     if (document.getElementById('screen-main').classList.contains('active')) {
       syncSheets();
