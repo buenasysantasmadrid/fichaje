@@ -375,7 +375,8 @@ body {
       <div class="success-name" id="success-name"></div>
       <div class="success-hora" id="success-hora"></div>
       <div class="success-tiempo" id="success-tiempo" style="display:none;"></div>
-      <div class="aviso-ojo" id="aviso-ojo" style="display:none;">⚠️ OJO HORARIO</div>
+      <div class="aviso-ojo" id="aviso-ojo-largo" style="display:none;">⚠️ OJO HORARIO — TURNO LARGO</div>
+      <div class="aviso-ojo aviso-rojo" id="aviso-ojo-corto" style="display:none;">⚠️ OJO — FICHAJE INCORRECTO</div>
       <img id="success-photo" class="success-photo" src="" alt="" style="display:none;">
       <div class="countdown-bar-wrap">
         <div class="countdown-bar" id="countdown-bar" style="width:100%;"></div>
@@ -735,7 +736,7 @@ async function registrarFichaje(tipo) {
             + String(ahora.getMinutes()).padStart(2,'0') + ':'
             + String(ahora.getSeconds()).padStart(2,'0');
 
-  var tiempoTexto = null, horasTrabajadas = 0;
+  var tiempoTexto = null, minTurno = 0;
   var fichs = syncFichajesMap && syncFichajesMap[emp.nombre] ? syncFichajesMap[emp.nombre] : [];
   if (tipo === 'SALIDA') {
     var ultimaEntrada = null;
@@ -746,7 +747,7 @@ async function registrarFichaje(tipo) {
       var minTurno = diferenciaMin(ultimaEntrada.hora, hora);
       var h = Math.floor(minTurno / 60), m = minTurno % 60;
       tiempoTexto = 'Has trabajado ' + h + ' horas y ' + m + ' minutos';
-      horasTrabajadas = minTurno / 60;
+      
     }
   }
 
@@ -764,11 +765,11 @@ async function registrarFichaje(tipo) {
     hora_dia:        '',
   }).catch(function(e) { console.warn('Error guardando fichaje en Supabase:', e); });
 
-  mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas);
+  mostrarExito(tipo, hora, foto, tiempoTexto, minTurno || 0);
 }
 
 // ── Pantalla de éxito ─────────────────────────────────────────────────────────
-function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
+function mostrarExito(tipo, hora, foto, tiempoTexto, minutos) {
   var icon = document.getElementById('success-icon');
   icon.className = 'success-icon ' + (tipo === 'ENTRADA' ? 'icon-entrada' : 'icon-salida');
   icon.textContent = tipo === 'ENTRADA' ? '↗' : '↙';
@@ -777,7 +778,8 @@ function mostrarExito(tipo, hora, foto, tiempoTexto, horasTrabajadas) {
   var tEl = document.getElementById('success-tiempo');
   if (tiempoTexto && tipo === 'SALIDA') { tEl.textContent = tiempoTexto; tEl.style.display = 'block'; }
   else { tEl.style.display = 'none'; }
-  document.getElementById('aviso-ojo').style.display = (tipo === 'SALIDA' && horasTrabajadas >= 11) ? 'block' : 'none';
+  document.getElementById("aviso-ojo-largo").style.display = (tipo === "SALIDA" && minutos >= 660) ? "block" : "none";
+  document.getElementById("aviso-ojo-corto").style.display = (tipo === "SALIDA" && minutos > 0 && minutos < 5) ? "block" : "none";
   var img = document.getElementById('success-photo');
   if (foto) { img.src = foto; img.style.display = 'block'; }
   else { img.style.display = 'none'; }
