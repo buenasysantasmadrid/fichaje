@@ -393,6 +393,7 @@ body {
 // ══════════════════════════════════════════════════════════════════════════════
 const SUPABASE_URL    = 'https://bseayyfvivnloqkswshb.supabase.co';
 const SUPABASE_ANON   = 'sb_publishable_h5RF63turgcsro_2KSUA0A_375BDAFQ';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypMnnN4c7Wh8FQzFFrE9r_dxH2JlfhvwikBo7-iGks0KFegjEm0XAdWEymNmie4VlU/exec';
 
 // ── Helpers REST ─────────────────────────────────────────────────────────────
 function sbHeaders() {
@@ -765,6 +766,9 @@ async function registrarFichaje(tipo) {
     hora_dia:        '',
   }).catch(function(e) { console.warn('Error guardando fichaje en Supabase:', e); });
 
+  // Espejo en Google Sheet (fire-and-forget, no bloquea la UI)
+  espejoDato(emp.nombre, tipo, fecha, hora.substring(0,5));
+
   mostrarExito(tipo, hora, foto, tiempoTexto, minTurno || 0);
 }
 
@@ -794,6 +798,21 @@ function mostrarExito(tipo, hora, foto, tiempoTexto, minutos) {
     showScreen('screen-main');
     syncSheets();
   }, 5000);
+}
+
+// ── Espejo Google Sheet ───────────────────────────────────────────────────────
+// Envía el fichaje al Apps Script para que lo escriba en el Sheet.
+// Usa no-cors porque el Apps Script no devuelve CORS headers en redirect.
+// La respuesta es opaca pero el dato llega igualmente.
+function espejoDato(nombre, tipo, fecha, hora) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PEGA_AQUI') !== -1) return;
+  var body = JSON.stringify({ action: 'addFichaje', nombre: nombre, tipo: tipo, fecha: fecha, hora: hora });
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: body,
+  }).catch(function(e) { console.warn('Espejo Sheet error:', e); });
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
