@@ -555,22 +555,20 @@ async function syncSheets() {
     //    filtrando todos los nombres y agrupando en JS
     var nombres = state.empleados.map(function(e) { return e.nombre; });
     // Traemos el último fichaje de cada empleado (máx fecha+hora)
-    var rows = await sbGet('fichajes', {
-      'select': 'empleado_nombre,fecha,tipo,hora',
-      'empleado_nombre': 'in.(' + nombres.map(function(n) { return '"' + n + '"'; }).join(',') + ')',
-      'order': 'fecha.desc,hora.desc',
-      'limit': '500',
-    });
-
-    // Agrupar: por cada empleado, quedamos solo con el primero (más reciente)
+    // Una query por empleado para garantizar que cogemos siempre el más reciente
     var newMap = {};
     nombres.forEach(function(n) { newMap[n] = []; });
-    rows.forEach(function(r) {
-      var n = r.empleado_nombre;
-      if (newMap[n] !== undefined && newMap[n].length === 0) {
-        newMap[n].push({ fecha: r.fecha, tipo: r.tipo, hora: r.hora });
-      }
-    });
+    await Promise.all(nombres.map(async function(n) {
+      try {
+        var rows = await sbGet('fichajes', {
+          'select': 'fecha,tipo,hora',
+          'empleado_nombre': 'eq.' + n,
+          'order': 'fecha.desc,hora.desc',
+          'limit': '1',
+        });
+        if (rows.length > 0) newMap[n].push(rows[0]);
+      } catch(e) { console.warn('Error fichaje ' + n, e); }
+    }));
     syncFichajesMap = newMap;
     renderEmpleados(syncFichajesMap);
   } catch(e) {
