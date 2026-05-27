@@ -431,6 +431,7 @@ const state = {
   empleadoActual: null,
   pinIngresado: '',
   stream: null,
+  videoListo: false,
   tiempoInterval: null,
   countdownTimeout: null,
   countdownInterval: null,
@@ -529,14 +530,13 @@ function renderEmpleados(fichajesMap) {
     var ultimo  = fichs ? fichs[0] : null;
     var working = ultimo && ultimo.tipo === 'ENTRADA';
     var hasData = fichs !== null;
-    var desdeTexto = (working && ultimo && ultimo.hora) ? ' · desde las ' + fmtHora(ultimo.hora) : '';
     return '<div class="emp-card" onclick="seleccionarEmpleado(' + i + ')" style="animation-delay:' + (i*0.04) + 's">'
       + '<div>'
       + '<div class="emp-name">' + primerNombre(emp.nombre) + '</div>'
       + (hasData
           ? '<span class="emp-status ' + (working ? 'status-working' : 'status-resting') + '">'
             + '<span class="status-dot ' + (working ? 'pulse' : '') + '"></span>'
-            + (working ? 'Trabajando' + desdeTexto : 'Descansando')
+            + (working ? 'Trabajando' : 'Descansando')
             + '</span>'
           : '<span class="emp-status status-resting" style="opacity:0.4">—</span>')
       + '</div></div>';
@@ -681,7 +681,12 @@ async function mostrarPantallaFichaje() {
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
     .then(function(stream) {
       state.stream = stream;
-      document.getElementById('video').srcObject = stream;
+      var vid = document.getElementById('video');
+      vid.srcObject = stream;
+      vid.setAttribute('playsinline', '');  // necesario en iOS
+      vid.muted = true;
+      state.videoListo = false;
+      vid.addEventListener('canplay', function() { state.videoListo = true; }, { once: true });
       document.getElementById('cam-off').style.display = 'none';
     })
     .catch(function() {
@@ -712,12 +717,15 @@ async function mostrarPantallaFichaje() {
 function cancelarFichaje() {
   if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
   if (state.stream) { state.stream.getTracks().forEach(function(t) { t.stop(); }); state.stream = null; }
+  state.videoListo = false;
   showScreen('screen-main');
 }
 
 function capturarFoto() {
   try {
     var v = document.getElementById('video'), c = document.getElementById('canvas');
+    // En iOS el video puede no tener frames aún aunque esté asignado
+    if (!v || v.readyState < 2 || v.videoWidth === 0) return '';
     c.width = 320; c.height = 240;
     c.getContext('2d').drawImage(v, 0, 0, 320, 240);
     return c.toDataURL('image/jpeg', 0.65);
