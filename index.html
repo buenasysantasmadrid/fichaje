@@ -438,10 +438,19 @@ const state = {
 };
 
 // ── UI helpers ────────────────────────────────────────────────────────────────
+// Timestamp del último fichaje (para no pisar estado local con sync inmediato)
+var _ultimoFichajeTs = 0;
+
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
-  if (id === 'screen-main') syncSheets();
+  if (id === 'screen-main') {
+    // Si acabamos de fichar hace menos de 8 s, no sincronizamos:
+    // evita que la latencia de Supabase sobreescriba el estado local optimista
+    if (Date.now() - _ultimoFichajeTs > 8000) {
+      syncSheets();
+    }
+  }
 }
 
 function updateDate() {
@@ -569,11 +578,31 @@ async function syncSheets() {
           'select': 'fecha,tipo,hora',
           'empleado_nombre': 'eq.' + n,
           'order': 'fecha.desc,hora.desc',
-          'limit': '1',
+          'limit': '3',
         });
-        if (rows.length > 0) newMap[n].push(rows[0]);
+        if (rows.length > 0) newMap[n] = rows;
       } catch(e) { console.warn('Error fichaje ' + n, e); }
     }));
+
+    // Protección contra latencia de Supabase:
+    // Si teníamos un fichaje local más reciente (recién registrado),
+    // no lo pisamos con datos potencialmente desactualizados del servidor.
+    if (syncFichajesMap) {
+      nombres.forEach(function(n) {
+        var local  = syncFichajesMap[n] && syncFichajesMap[n][0];
+        var remoto = newMap[n] && newMap[n][0];
+        if (!local || !remoto) return;
+        // Comparar fecha+hora: si el local es más reciente, conservarlo
+        var tsLocal  = local.fecha  + 'T' + (local.hora  || '00:00') + ':00';
+        var tsRemoto = remoto.fecha + 'T' + (remoto.hora || '00:00') + ':00';
+        if (tsLocal > tsRemoto) {
+          // El registro local es más nuevo → anteponerlo a lo que llegó del servidor
+          // (evita que una latencia de Supabase muestre el estado anterior)
+          newMap[n] = [local].concat(newMap[n]);
+        }
+      });
+    }
+
     syncFichajesMap = newMap;
     renderEmpleados(syncFichajesMap);
   } catch(e) {
@@ -764,6 +793,7 @@ async function registrarFichaje(tipo) {
   }
 
   // Actualizar estado local inmediatamente (UI optimista)
+  _ultimoFichajeTs = Date.now();  // evita sync inmediato al volver a pantalla principal
   actualizarEstadoLocal(emp.nombre, tipo, fecha, hora);
 
   // Guardar en Supabase (sin foto en base64 — columna foto no existe en el schema)
