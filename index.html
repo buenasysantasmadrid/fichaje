@@ -139,6 +139,25 @@ body {
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .status-dot.pulse { animation: pulse 1.5s ease-in-out infinite; }
 
+/* ── Compacto para pantallas pequeñas (iPhone SE/mini y similares) ──────────
+   Objetivo: que quepan todas las tarjetas de empleados sin scroll en la
+   primera pantalla. Se activa por altura Y por anchura para cubrir tanto
+   iPhones "cortos" como "estrechos". */
+@media (max-width: 380px), (max-height: 700px) {
+  #app { padding: 1rem 0.85rem 1.25rem; }
+  .app-header { margin-bottom: 1rem; padding-bottom: 0.75rem; gap: 10px; }
+  .logo-wrap { width: 42px; height: 42px; border-radius: 10px; }
+  .app-title { font-size: 21px; }
+  .app-date { font-size: 11px; margin-top: 2px; }
+  .sync-btn { width: 34px; height: 34px; }
+  .section-label { margin-bottom: 6px; }
+  .emp-grid { gap: 7px; }
+  .emp-card { padding: 0.6rem 0.65rem; gap: 4px; border-radius: 12px; }
+  .emp-name { font-size: 13.5px; }
+  .emp-status { font-size: 10.5px; padding: 3px 8px; gap: 4px; }
+  .status-dot { width: 5px; height: 5px; }
+}
+
 .back-btn {
   display: inline-flex; align-items: center; gap: 7px;
   background: none; border: none; padding: 0;
@@ -716,6 +735,16 @@ async function mostrarPantallaFichaje() {
       vid.muted = true;
       state.videoListo = false;
       vid.addEventListener('canplay', function() { state.videoListo = true; }, { once: true });
+      // FIX foto intermitente (parte 1): en iOS Safari el autoplay del
+      // <video> a veces no arranca solo tras asignar srcObject, sobre todo
+      // la primera vez que se concede permiso de cámara. Forzamos play()
+      // explícitamente; si el navegador lo rechaza (autoplay bloqueado),
+      // lo ignoramos silenciosamente, el atributo autoplay seguirá
+      // intentándolo.
+      var playPromise = vid.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(function() {});
+      }
       document.getElementById('cam-off').style.display = 'none';
     })
     .catch(function() {
@@ -750,10 +779,20 @@ function cancelarFichaje() {
   showScreen('screen-main');
 }
 
-function capturarFoto() {
+// FIX foto intermitente (parte 2): antes, si al pulsar el botón la cámara
+// aún no tenía un frame listo (readyState < 2 o videoWidth === 0), la
+// función se rendía al instante y devolvía '' sin foto, en silencio. Eso es
+// justo lo que hacía que "a veces sí, a veces no" — dependía de si habías
+// pulsado el botón antes o después de que la cámara terminara de iniciar.
+// Ahora reintenta cada 100ms durante hasta 600ms antes de rendirse.
+async function capturarFoto() {
+  var v = document.getElementById('video'), c = document.getElementById('canvas');
+  var intentos = 0;
+  while ((!v || v.readyState < 2 || v.videoWidth === 0) && intentos < 6) {
+    await new Promise(function(r) { setTimeout(r, 100); });
+    intentos++;
+  }
   try {
-    var v = document.getElementById('video'), c = document.getElementById('canvas');
-    // En iOS el video puede no tener frames aún aunque esté asignado
     if (!v || v.readyState < 2 || v.videoWidth === 0) return '';
     c.width = 320; c.height = 240;
     c.getContext('2d').drawImage(v, 0, 0, 320, 240);
@@ -765,7 +804,7 @@ function capturarFoto() {
 async function registrarFichaje(tipo) {
   if (state.tiempoInterval) { clearInterval(state.tiempoInterval); state.tiempoInterval = null; }
   var emp  = state.empleadoActual;
-  var foto = capturarFoto();
+  var foto = await capturarFoto();
   if (state.stream) { state.stream.getTracks().forEach(function(t) { t.stop(); }); state.stream = null; }
 
   var ahora = new Date();
