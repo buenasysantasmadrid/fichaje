@@ -542,7 +542,26 @@ function calcTiempo(fichaje) {
     return (d > 0 ? d + 'd ' : '') + h + 'h ' + (totalMin % 60) + 'min';
   } catch(e) { return null; }
 }
-
+function ordenarFichajes(rows) {
+  function clave(f) { return String(f.fecha).substring(0, 10) + ' ' + String(f.hora).substring(0, 5); }
+  var r = rows.slice().sort(function(a, b) {
+    var x = clave(a), y = clave(b);
+    return x < y ? 1 : (x > y ? -1 : 0);
+  });
+  var i = 0;
+  while (i < r.length) {
+    var j = i;
+    while (j + 1 < r.length && clave(r[j + 1]) === clave(r[i])) j++;
+    if (j === i + 1 && r[i].tipo !== r[j].tipo) {
+      var previo = r[j + 1];
+      var masReciente = (previo && previo.tipo === 'ENTRADA') ? 'ENTRADA' : 'SALIDA';
+      if (r[i].tipo !== masReciente) { var t = r[i]; r[i] = r[j]; r[j] = t; }
+    }
+    i = j + 1;
+  }
+  return r;
+}
+  
 // ── Carga de empleados desde Supabase ─────────────────────────────────────────
 async function cargarEmpleados() {
   // Solo empleados activos, ordenados por nombre
@@ -616,7 +635,7 @@ async function syncSheets() {
           'order': 'fecha.desc,hora.desc',
           'limit': '3',
         });
-        if (rows.length > 0) newMap[n] = rows;
+        if (rows.length > 0) newMap[n] = ordenarFichajes(rows);
       } catch(e) { console.warn('Error fichaje ' + n, e); }
     }));
 
@@ -777,9 +796,9 @@ async function mostrarPantallaFichaje() {
         'order': 'fecha.desc,hora.desc',
         'limit': '10',
       });
-      fichs = rows.map(function(r) {
+      fichs = ordenarFichajes(rows.map(function(r) {
         return { fecha: r.fecha, tipo: r.tipo, hora: r.hora };
-      });
+      }));
       if (!syncFichajesMap) syncFichajesMap = {};
       syncFichajesMap[emp.nombre] = fichs;
     } catch(e) { console.warn('Error cargando fichajes:', e); }
