@@ -503,12 +503,28 @@ function horaAMin(h) {
   return parseInt(s[0]) * 60 + parseInt(s[1]);
 }
 
-function diferenciaMin(e, s) {
-  var em = horaAMin(e), sm = horaAMin(s);
-  if (sm < em) sm += 24 * 60;
-  return sm - em;
+function fechaHoraADate(fecha, hora) {
+  var f = String(fecha).substring(0,10).split('-');
+  var h = String(hora).substring(0,5).split(':');
+  return new Date(+f[0], +f[1]-1, +f[2], +h[0], +h[1], 0);
 }
 
+// Minutos reales entre la entrada (fecha+hora) y ahora
+function diferenciaMin(entrada, ahora) {
+  var diff = ahora.getTime() - fechaHoraADate(entrada.fecha, entrada.hora).getTime();
+  return Math.max(0, Math.floor(diff / 60000));
+}
+
+function fmtDuracion(min) {
+  var d = Math.floor(min / 1440);
+  var h = Math.floor((min % 1440) / 60);
+  var m = min % 60;
+  var partes = [];
+  if (d > 0) partes.push(d + (d === 1 ? ' día' : ' días'));
+  partes.push(h + (h === 1 ? ' hora' : ' horas'));
+  partes.push(m + (m === 1 ? ' minuto' : ' minutos'));
+  return partes.slice(0, -1).join(', ') + ' y ' + partes[partes.length - 1];
+}
 function calcTiempo(fichaje) {
   try {
     // fecha ISO: "2026-05-20", hora: "09:08"
@@ -522,7 +538,8 @@ function calcTiempo(fichaje) {
     var diff = Date.now() - dt.getTime();
     if (diff < 0) return null;
     var totalMin = Math.floor(diff / 60000);
-    return Math.floor(totalMin/60) + 'h ' + (totalMin%60) + 'min';
+    var d = Math.floor(totalMin / 1440), h = Math.floor((totalMin % 1440) / 60);
+    return (d > 0 ? d + 'd ' : '') + h + 'h ' + (totalMin % 60) + 'min';
   } catch(e) { return null; }
 }
 
@@ -818,16 +835,14 @@ async function registrarFichaje(tipo) {
 
   var tiempoTexto = null, minTurno = 0;
   var fichs = syncFichajesMap && syncFichajesMap[emp.nombre] ? syncFichajesMap[emp.nombre] : [];
-  if (tipo === 'SALIDA') {
+    if (tipo === 'SALIDA') {
     var ultimaEntrada = null;
     for (var k = 0; k < fichs.length; k++) {
       if (fichs[k].tipo === 'ENTRADA') { ultimaEntrada = fichs[k]; break; }
     }
     if (ultimaEntrada) {
-      var minTurno = diferenciaMin(ultimaEntrada.hora, hora);
-      var h = Math.floor(minTurno / 60), m = minTurno % 60;
-      tiempoTexto = 'Has trabajado ' + h + ' horas y ' + m + ' minutos';
-      
+      minTurno = diferenciaMin(ultimaEntrada, ahora);
+      tiempoTexto = 'Has trabajado ' + fmtDuracion(minTurno);
     }
   }
 
@@ -865,6 +880,8 @@ function mostrarExito(tipo, hora, foto, tiempoTexto, minutos) {
   var hayAviso = tipo === 'SALIDA' && (minutos >= 660 || (minutos > 0 && minutos < 5));
   document.getElementById("aviso-ojo-largo").style.display = (tipo === "SALIDA" && minutos >= 660) ? "block" : "none";
   document.getElementById("aviso-ojo-corto").style.display = (tipo === "SALIDA" && minutos > 0 && minutos < 5) ? "block" : "none";
+  document.getElementById('aviso-ojo-largo').textContent =
+  minutos >= 1440 ? '⚠️ OJO — MÁS DE 1 DÍA SIN FICHAR SALIDA' : '⚠️ OJO HORARIO — TURNO LARGO';
   var img = document.getElementById('success-photo');
   if (foto) { img.src = foto; img.style.display = 'block'; }
   else { img.style.display = 'none'; }
