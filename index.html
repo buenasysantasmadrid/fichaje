@@ -833,7 +833,7 @@ async function registrarFichaje(tipo) {
             + String(ahora.getMinutes()).padStart(2,'0') + ':'
             + String(ahora.getSeconds()).padStart(2,'0');
 
-  var tiempoTexto = null, minTurno = 0;
+  var tiempoTexto = null, minTurno = -1;   // -1 = no se encontró entrada
   var fichs = syncFichajesMap && syncFichajesMap[emp.nombre] ? syncFichajesMap[emp.nombre] : [];
     if (tipo === 'SALIDA') {
     var ultimaEntrada = null;
@@ -864,7 +864,7 @@ async function registrarFichaje(tipo) {
   // Espejo en Google Sheet (fire-and-forget, no bloquea la UI)
   espejoDato(emp.nombre, tipo, fecha, hora.substring(0,5));
 
-  mostrarExito(tipo, hora, foto, tiempoTexto, minTurno || 0);
+  mostrarExito(tipo, hora, foto, tiempoTexto, minTurno);
 }
 
 // ── Pantalla de éxito ─────────────────────────────────────────────────────────
@@ -877,9 +877,9 @@ function mostrarExito(tipo, hora, foto, tiempoTexto, minutos) {
   var tEl = document.getElementById('success-tiempo');
   if (tiempoTexto && tipo === 'SALIDA') { tEl.textContent = tiempoTexto; tEl.style.display = 'block'; }
   else { tEl.style.display = 'none'; }
-  var hayAviso = tipo === 'SALIDA' && (minutos >= 660 || (minutos > 0 && minutos < 5));
+  var hayAviso = tipo === 'SALIDA' && (minutos >= 660 || (minutos >= 0 && minutos < 5));
   document.getElementById("aviso-ojo-largo").style.display = (tipo === "SALIDA" && minutos >= 660) ? "block" : "none";
-  document.getElementById("aviso-ojo-corto").style.display = (tipo === "SALIDA" && minutos > 0 && minutos < 5) ? "block" : "none";
+  document.getElementById("aviso-ojo-corto").style.display = (tipo === "SALIDA" && minutos >= 0 && minutos < 5) ? "block" : "none";
   document.getElementById('aviso-ojo-largo').textContent =
   minutos >= 1440 ? '⚠️ OJO — MÁS DE 1 DÍA SIN FICHAR SALIDA' : '⚠️ OJO HORARIO — TURNO LARGO';
   var img = document.getElementById('success-photo');
